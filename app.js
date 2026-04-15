@@ -47,22 +47,26 @@ const SSR_POOL = [
   "자각 없이 드러남"
 ];
 
+const STORAGE_KEY = "hazel-study-trpg-v2";
+
 // -----------------------------
-// 2. 앱 상태
+// 2. 기본 상태
 // -----------------------------
-const state = {
-  subjects: {},
-  subject: "",
-  unit: "",
-  successRate: 35,
-  solvedCount: 0,
-  attemptsSinceRoll: 0,
-  normalToken: 0,
-  specialToken: 0,
-  lastRoll: null,
-  lastRollResult: "-",
-  logs: []
-};
+function createDefaultState() {
+  return {
+    subjects: {},
+    subject: "",
+    unit: "",
+    normalToken: 0,
+    specialToken: 0,
+    logs: [],
+    gachaText: "아직 가챠 결과가 없습니다.",
+    gachaClass: "",
+    unitProgress: {}
+  };
+}
+
+const state = createDefaultState();
 
 // -----------------------------
 // 3. DOM 참조
@@ -91,12 +95,13 @@ const solveCorrectBtn = document.getElementById("solveCorrectBtn");
 const solveWrongBtn = document.getElementById("solveWrongBtn");
 const rollBtn = document.getElementById("rollBtn");
 const drawBtn = document.getElementById("drawBtn");
+const resetProgressBtn = document.getElementById("resetProgressBtn");
 
 const gachaResult = document.getElementById("gachaResult");
 const logList = document.getElementById("logList");
 
 // -----------------------------
-// 4. 유틸 함수
+// 4. 유틸
 // -----------------------------
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
@@ -108,30 +113,97 @@ function pickRandom(arr) {
 
 function addLog(message) {
   state.logs.unshift(message);
-
   if (state.logs.length > 12) {
     state.logs = state.logs.slice(0, 12);
   }
 }
 
+function getUnitKey(subject, unit) {
+  if (!subject || !unit) return "";
+  return `${subject}::${unit}`;
+}
+
+function createDefaultProgress() {
+  return {
+    successRate: 35,
+    solvedCount: 0,
+    attemptsSinceRoll: 0,
+    lastRoll: null,
+    lastRollResult: "-"
+  };
+}
+
+function ensureProgress(subject, unit) {
+  const key = getUnitKey(subject, unit);
+  if (!key) return null;
+
+  if (!state.unitProgress[key]) {
+    state.unitProgress[key] = createDefaultProgress();
+  }
+
+  return state.unitProgress[key];
+}
+
+function getCurrentProgress() {
+  return ensureProgress(state.subject, state.unit);
+}
+
+function hasCurrentUnit() {
+  return Boolean(state.subject && state.unit && (state.subjects[state.subject] || []).includes(state.unit));
+}
+
 function getRemainingForRoll() {
-  return Math.max(0, 3 - state.attemptsSinceRoll);
+  const progress = getCurrentProgress();
+  if (!progress) return 3;
+  return Math.max(0, 3 - progress.attemptsSinceRoll);
 }
 
 function canRoll() {
-  return state.attemptsSinceRoll >= 3;
+  const progress = getCurrentProgress();
+  return Boolean(progress && progress.attemptsSinceRoll >= 3);
 }
 
 function canDraw() {
   return state.normalToken >= 1;
 }
 
-function hasCurrentUnit() {
-  return Boolean(state.subject && state.unit && (state.subjects[state.subject] || []).length > 0);
+// -----------------------------
+// 5. 저장 / 불러오기
+// -----------------------------
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (error) {
+    console.error("저장 실패:", error);
+  }
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+
+    const parsed = JSON.parse(raw);
+
+    state.subjects = parsed.subjects || {};
+    state.subject = parsed.subject || "";
+    state.unit = parsed.unit || "";
+    state.normalToken = parsed.normalToken || 0;
+    state.specialToken = parsed.specialToken || 0;
+    state.logs = Array.isArray(parsed.logs) ? parsed.logs : [];
+    state.gachaText = parsed.gachaText || "아직 가챠 결과가 없습니다.";
+    state.gachaClass = parsed.gachaClass || "";
+    state.unitProgress = parsed.unitProgress || {};
+
+    return true;
+  } catch (error) {
+    console.error("불러오기 실패:", error);
+    return false;
+  }
 }
 
 // -----------------------------
-// 5. 드롭다운 초기화
+// 6. 드롭다운 초기화
 // -----------------------------
 function initSubjectOptions() {
   subjectSelect.innerHTML = "";
@@ -187,20 +259,23 @@ function initUnitOptions() {
   }
 
   unitSelect.value = state.unit;
+  ensureProgress(state.subject, state.unit);
 }
 
 // -----------------------------
-// 6. 렌더 함수
+// 7. 렌더
 // -----------------------------
 function renderStatus() {
+  const progress = getCurrentProgress();
+
   currentSubject.textContent = state.subject || "-";
   currentUnit.textContent = state.unit || "-";
-  successRateEl.textContent = state.successRate;
-  solvedCountEl.textContent = state.solvedCount;
+  successRateEl.textContent = progress ? progress.successRate : 35;
+  solvedCountEl.textContent = progress ? progress.solvedCount : 0;
   remainingForRollEl.textContent = getRemainingForRoll();
 
-  lastRollEl.textContent = state.lastRoll ?? "-";
-  rollResultEl.textContent = state.lastRollResult;
+  lastRollEl.textContent = progress?.lastRoll ?? "-";
+  rollResultEl.textContent = progress?.lastRollResult ?? "-";
 
   normalTokenEl.textContent = state.normalToken;
   specialTokenEl.textContent = state.specialToken;
@@ -209,8 +284,15 @@ function renderStatus() {
 
   solveCorrectBtn.disabled = !validUnit;
   solveWrongBtn.disabled = !validUnit;
+  resetProgressBtn.disabled = !validUnit;
   rollBtn.disabled = !canRoll();
   drawBtn.disabled = !canDraw();
+
+  gachaResult.textContent = state.gachaText;
+  gachaResult.className = "gacha-result";
+  if (state.gachaClass) {
+    gachaResult.classList.add(state.gachaClass);
+  }
 }
 
 function renderLogs() {
@@ -237,7 +319,7 @@ function renderAll() {
 }
 
 // -----------------------------
-// 7. 과목 / 소단원 추가
+// 8. 과목 / 소단원 추가
 // -----------------------------
 function addSubject() {
   const newSubject = newSubjectInput.value.trim();
@@ -245,12 +327,14 @@ function addSubject() {
   if (!newSubject) {
     addLog("⚠️ 과목 이름을 입력해 주세요.");
     renderAll();
+    saveState();
     return;
   }
 
   if (state.subjects[newSubject]) {
     addLog(`⚠️ 이미 존재하는 과목입니다: ${newSubject}`);
     renderAll();
+    saveState();
     return;
   }
 
@@ -264,6 +348,7 @@ function addSubject() {
   newSubjectInput.value = "";
   addLog(`📚 새 과목 추가: ${newSubject}`);
   renderAll();
+  saveState();
 }
 
 function addUnit() {
@@ -272,12 +357,14 @@ function addUnit() {
   if (!state.subject) {
     addLog("⚠️ 먼저 과목을 추가하거나 선택해 주세요.");
     renderAll();
+    saveState();
     return;
   }
 
   if (!newUnit) {
     addLog("⚠️ 소단원 이름을 입력해 주세요.");
     renderAll();
+    saveState();
     return;
   }
 
@@ -286,55 +373,83 @@ function addUnit() {
   if (units.includes(newUnit)) {
     addLog(`⚠️ 이미 존재하는 소단원입니다: ${newUnit}`);
     renderAll();
+    saveState();
     return;
   }
 
   units.push(newUnit);
   state.unit = newUnit;
+  ensureProgress(state.subject, newUnit);
 
   initUnitOptions();
 
   newUnitInput.value = "";
   addLog(`🧩 ${state.subject}에 새 소단원 추가: ${newUnit}`);
   renderAll();
+  saveState();
 }
 
 // -----------------------------
-// 8. 학습 로직
+// 9. 학습 로직
 // -----------------------------
 function completeProblem(type) {
   if (!hasCurrentUnit()) {
     addLog("⚠️ 먼저 과목과 소단원을 준비해 주세요.");
     renderAll();
+    saveState();
     return;
   }
 
-  state.solvedCount += 1;
-  state.attemptsSinceRoll += 1;
+  const progress = getCurrentProgress();
+  if (!progress) return;
+
+  progress.solvedCount += 1;
+  progress.attemptsSinceRoll += 1;
 
   if (type === "correct") {
-    state.successRate = clamp(state.successRate + 6, 0, 95);
+    progress.successRate = clamp(progress.successRate + 6, 0, 95);
     addLog(`📘 ${state.subject} - ${state.unit}: 정답 문제 완료 → 성공률 +6`);
   } else {
-    state.successRate = clamp(state.successRate + 2, 0, 95);
+    progress.successRate = clamp(progress.successRate + 2, 0, 95);
     addLog(`📗 ${state.subject} - ${state.unit}: 오답 시도 완료 → 성공률 +2`);
   }
 
   renderAll();
+  saveState();
+}
+
+function resetCurrentProgress() {
+  if (!hasCurrentUnit()) {
+    addLog("⚠️ 초기화할 소단원이 없습니다.");
+    renderAll();
+    saveState();
+    return;
+  }
+
+  const key = getUnitKey(state.subject, state.unit);
+  state.unitProgress[key] = createDefaultProgress();
+
+  addLog(`🔄 ${state.subject} - ${state.unit} 진행도를 초기화했습니다.`);
+  renderAll();
+  saveState();
 }
 
 // -----------------------------
-// 9. 판정 로직
+// 10. 판정 로직
 // -----------------------------
 function roll1d100() {
   if (!canRoll()) {
     addLog("⚠️ 아직 판정할 수 없습니다. 문제를 더 풀어 주세요.");
     renderAll();
+    saveState();
     return;
   }
 
+  const progress = getCurrentProgress();
+  if (!progress) return;
+
   const roll = Math.floor(Math.random() * 100) + 1;
-  state.lastRoll = roll;
+  progress.lastRoll = roll;
 
   let result = "";
   let normalReward = 0;
@@ -346,38 +461,40 @@ function roll1d100() {
     specialReward = 1;
   } else if (roll >= 96) {
     result = "대실패";
-  } else if (roll <= state.successRate) {
+  } else if (roll <= progress.successRate) {
     result = "성공";
     normalReward = 1;
   } else {
     result = "실패";
   }
 
-  state.lastRollResult = result;
+  progress.lastRollResult = result;
   state.normalToken += normalReward;
   state.specialToken += specialReward;
-  state.attemptsSinceRoll = 0;
+  progress.attemptsSinceRoll = 0;
 
   if (result === "대성공") {
-    addLog(`🎉 1d100=${roll} → 대성공! 일반 토큰 +1, 스페셜 토큰 +1`);
+    addLog(`🎉 ${state.subject} - ${state.unit}: 1d100=${roll} → 대성공! 일반 토큰 +1, 스페셜 토큰 +1`);
   } else if (result === "성공") {
-    addLog(`✨ 1d100=${roll} → 성공! 일반 토큰 +1`);
+    addLog(`✨ ${state.subject} - ${state.unit}: 1d100=${roll} → 성공! 일반 토큰 +1`);
   } else if (result === "실패") {
-    addLog(`🌫️ 1d100=${roll} → 실패... 다음 턴을 준비합니다.`);
+    addLog(`🌫️ ${state.subject} - ${state.unit}: 1d100=${roll} → 실패... 다음 턴을 준비합니다.`);
   } else {
-    addLog(`💥 1d100=${roll} → 대실패... 토큰 없음.`);
+    addLog(`💥 ${state.subject} - ${state.unit}: 1d100=${roll} → 대실패... 토큰 없음.`);
   }
 
   renderAll();
+  saveState();
 }
 
 // -----------------------------
-// 10. 가챠 로직
+// 11. 가챠 로직
 // -----------------------------
 function drawGacha() {
   if (!canDraw()) {
     addLog("⚠️ 일반 토큰이 부족합니다.");
     renderAll();
+    saveState();
     return;
   }
 
@@ -400,18 +517,19 @@ function drawGacha() {
   const twist = pickRandom(TWIST_POOL);
 
   let resultText = "";
+  let resultClass = "";
 
   if (rarity === "R") {
     resultText =
       `【R】\n` +
       `상황: ${setting}`;
-    gachaResult.className = "gacha-result r";
+    resultClass = "r";
   } else if (rarity === "SR") {
     resultText =
       `【SR】\n` +
       `상황: ${setting}\n` +
       `감정: ${emotion}`;
-    gachaResult.className = "gacha-result sr";
+    resultClass = "sr";
   } else {
     const ssrKeyword = pickRandom(SSR_POOL);
 
@@ -421,17 +539,19 @@ function drawGacha() {
       `감정: ${emotion}\n` +
       `트위스트: ${twist}\n` +
       `특별 키워드: ${ssrKeyword}`;
-    gachaResult.className = "gacha-result ssr";
+    resultClass = "ssr";
   }
 
-  gachaResult.textContent = resultText;
-  addLog(`🎰 연성소재 가챠 결과: ${rarity}`);
+  state.gachaText = resultText;
+  state.gachaClass = resultClass;
 
+  addLog(`🎰 연성소재 가챠 결과: ${rarity}`);
   renderAll();
+  saveState();
 }
 
 // -----------------------------
-// 11. 이벤트 연결
+// 12. 이벤트 연결
 // -----------------------------
 function bindEvents() {
   subjectSelect.addEventListener("change", (event) => {
@@ -439,61 +559,50 @@ function bindEvents() {
     initUnitOptions();
     addLog(`📚 과목 변경: ${state.subject}`);
     renderAll();
+    saveState();
   });
 
   unitSelect.addEventListener("change", (event) => {
     state.unit = event.target.value;
+    ensureProgress(state.subject, state.unit);
     addLog(`🧩 소단원 변경: ${state.unit}`);
     renderAll();
+    saveState();
   });
 
-  addSubjectBtn.addEventListener("click", () => {
-    addSubject();
-  });
-
-  addUnitBtn.addEventListener("click", () => {
-    addUnit();
-  });
+  addSubjectBtn.addEventListener("click", addSubject);
+  addUnitBtn.addEventListener("click", addUnit);
 
   newSubjectInput.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      addSubject();
-    }
+    if (event.key === "Enter") addSubject();
   });
 
   newUnitInput.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      addUnit();
-    }
+    if (event.key === "Enter") addUnit();
   });
 
-  solveCorrectBtn.addEventListener("click", () => {
-    completeProblem("correct");
-  });
-
-  solveWrongBtn.addEventListener("click", () => {
-    completeProblem("wrong");
-  });
-
-  rollBtn.addEventListener("click", () => {
-    roll1d100();
-  });
-
-  drawBtn.addEventListener("click", () => {
-    drawGacha();
-  });
+  solveCorrectBtn.addEventListener("click", () => completeProblem("correct"));
+  solveWrongBtn.addEventListener("click", () => completeProblem("wrong"));
+  rollBtn.addEventListener("click", roll1d100);
+  drawBtn.addEventListener("click", drawGacha);
+  resetProgressBtn.addEventListener("click", resetCurrentProgress);
 }
 
 // -----------------------------
-// 12. 앱 시작
+// 13. 앱 시작
 // -----------------------------
 function initApp() {
+  const loaded = loadState();
+
   initSubjectOptions();
   initUnitOptions();
   bindEvents();
-  renderAll();
 
-  addLog("✨ 과목과 소단원을 직접 추가해서 시스템을 시작해 보세요.");
+  if (!loaded) {
+    addLog("✨ 과목과 소단원을 직접 추가해서 시스템을 시작해 보세요.");
+    saveState();
+  }
+
   renderAll();
 }
 

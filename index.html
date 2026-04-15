@@ -107,22 +107,25 @@
       </section>
 
       <section class="card">
-        <h2>🎰 연성소재 가챠</h2>
+       <h2>🎰 연성소재 가챠</h2>
 
-        <div class="button-row">
-          <button id="drawBtn" class="accent" type="button">가챠 1회</button>
-        </div>
+       <label class="checkbox-row">
+        <input id="useSpecialToken" type="checkbox" />
+        <span>스페셜 토큰 사용 (이번 가챠 SSR 확률 업)</span>
+       </label>
 
-        <div class="gacha-result" id="gachaResult">
-          아직 가챠 결과가 없습니다.
-        </div>
-      </section>
+       <div class="button-row">
+        <button id="drawBtn" class="accent" type="button">가챠 1회</button>
+       </div>
 
-      <section class="card full-width">
-        <h2>📝 시스템 로그</h2>
-        <ul id="logList" class="log-list">
-          <li class="empty-log">아직 로그가 없습니다.</li>
-        </ul>
+       <p class="hint">
+        기본 확률: R 80% / SR 18% / SSR 2%<br />
+        스페셜 토큰 사용 시: R 70% / SR 23% / SSR 7%
+       </p>
+
+       <div class="gacha-result" id="gachaResult">
+        아직 가챠 결과가 없습니다.
+       </div>
       </section>
     </main>
   </div>

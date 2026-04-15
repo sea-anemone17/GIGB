@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hazel Study TRPG</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="header card">
+      <h1>🎲 Hazel Study TRPG</h1>
+      <p class="subtitle">공부 → 판정 → 토큰 → 가챠</p>
+    </header>
+
+    <main class="grid">
+      <!-- 학습 설정 -->
+      <section class="card">
+        <h2>📚 학습 설정</h2>
+
+        <div class="field">
+          <label for="subjectSelect">과목</label>
+          <select id="subjectSelect"></select>
+        </div>
+
+        <div class="field">
+          <label for="unitSelect">소단원</label>
+          <select id="unitSelect"></select>
+        </div>
+
+        <div class="status-box">
+          <p><strong>현재 과목:</strong> <span id="currentSubject">-</span></p>
+          <p><strong>현재 소단원:</strong> <span id="currentUnit">-</span></p>
+          <p><strong>성공률:</strong> <span id="successRate">35</span>%</p>
+          <p><strong>푼 문제 수:</strong> <span id="solvedCount">0</span></p>
+          <p><strong>판정까지 남은 문제:</strong> <span id="remainingForRoll">3</span></p>
+        </div>
+
+        <div class="button-row">
+          <button id="solveCorrectBtn">정답 문제 완료 (+6%)</button>
+          <button id="solveWrongBtn" class="secondary">오답 시도 완료 (+2%)</button>
+        </div>
+      </section>
+
+      <!-- 판정 -->
+      <section class="card">
+        <h2>🎯 판정</h2>
+
+        <div class="status-box">
+          <p><strong>최근 주사위:</strong> <span id="lastRoll">-</span></p>
+          <p><strong>최근 판정 결과:</strong> <span id="rollResult">-</span></p>
+        </div>
+
+        <button id="rollBtn" class="accent">1d100 판정</button>
+
+        <p class="hint">
+          문제 3개를 풀면 판정 1회가 가능합니다.
+        </p>
+      </section>
+
+      <!-- 토큰 -->
+      <section class="card">
+        <h2>🪙 토큰</h2>
+
+        <div class="token-box">
+          <div class="token normal-token">
+            <span class="token-label">일반 토큰</span>
+            <span id="normalToken">0</span>
+          </div>
+          <div class="token special-token">
+            <span class="token-label">스페셜 토큰</span>
+            <span id="specialToken">0</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 가챠 -->
+      <section class="card">
+        <h2>🎰 소재 가챠</h2>
+
+        <div class="field">
+          <label for="pairSelect">관계 선택</label>
+          <select id="pairSelect"></select>
+        </div>
+
+        <div class="button-row">
+          <button id="drawBtn" class="accent">일반 가챠 1회</button>
+        </div>
+
+        <div class="gacha-result" id="gachaResult">
+          아직 가챠 결과가 없습니다.
+        </div>
+      </section>
+
+      <!-- 로그 -->
+      <section class="card full-width">
+        <h2>📝 시스템 로그</h2>
+        <ul id="logList" class="log-list">
+          <li class="empty-log">아직 로그가 없습니다.</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

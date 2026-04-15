@@ -744,6 +744,7 @@ function deleteSavedPrompt(index) {
 // -----------------------------
 // 12. 이벤트 연결
 // -----------------------------
+
 function bindEvents() {
   subjectSelect.addEventListener("change", (event) => {
     state.subject = event.target.value;
@@ -751,7 +752,6 @@ function bindEvents() {
     addLog(`📚 과목 변경: ${state.subject}`);
     renderAll();
     saveState();
-    clearLogBtn.addEventListener("click", clearLogs);
   });
 
   unitSelect.addEventListener("change", (event) => {
@@ -781,6 +781,7 @@ function bindEvents() {
   drawBtn.addEventListener("click", drawGacha);
   resetProgressBtn.addEventListener("click", resetCurrentProgress);
   savePromptBtn.addEventListener("click", saveCurrentPrompt);
+  clearLogBtn.addEventListener("click", clearLogs);
 }
 
 // -----------------------------

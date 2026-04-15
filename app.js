@@ -62,6 +62,7 @@ const resetProgressBtn = document.getElementById("resetProgressBtn");
 
 const gachaResult = document.getElementById("gachaResult");
 const logList = document.getElementById("logList");
+const clearLogBtn = document.getElementById("clearLogBtn");
 
 const useSpecialTokenCheckbox = document.getElementById("useSpecialToken");
 const savePromptBtn = document.getElementById("savePromptBtn");
@@ -70,6 +71,14 @@ const savedPromptList = document.getElementById("savedPromptList");
 // -----------------------------
 // 3. 유틸
 // -----------------------------
+
+function clearLogs() {
+  state.logs = [];
+  addLog("🧹 로그를 초기화했습니다.");
+  renderAll();
+  saveState();
+}
+
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
@@ -742,6 +751,7 @@ function bindEvents() {
     addLog(`📚 과목 변경: ${state.subject}`);
     renderAll();
     saveState();
+    clearLogBtn.addEventListener("click", clearLogs);
   });
 
   unitSelect.addEventListener("change", (event) => {

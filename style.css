@@ -504,6 +504,38 @@ button.accent {
 .timer-finished {
   animation: timerGlow 0.9s ease;
 }
+#timerPraise {
+  min-height: 1.6em;
+  margin-top: 10px;
+  text-align: center;
+  font-weight: 800;
+  color: #5d5b8b;
+  pointer-events: none;
+}
+
+.praise-burst {
+  opacity: 0;
+  transform: translateY(6px) scale(0.96);
+}
+
+.praise-burst.show {
+  animation: praiseBurst 1s ease forwards;
+}
+
+@keyframes praiseBurst {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.92);
+  }
+  35% {
+    opacity: 1;
+    transform: translateY(0) scale(1.04);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-8px) scale(1);
+  }
+}
 
 /* ------------------------------ */
 /* 토큰 */

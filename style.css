@@ -1,0 +1,248 @@
+:root {
+  --bg: #111318;
+  --card: #1b1f27;
+  --card-2: #232936;
+  --text: #f4f7fb;
+  --subtext: #bac4d6;
+  --line: #30384a;
+  --accent: #7c9cff;
+  --accent-2: #a98bff;
+  --success: #60d394;
+  --warning: #ffd166;
+  --danger: #ff6b6b;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  --radius: 18px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Pretendard", "Noto Sans KR", system-ui, -apple-system, sans-serif;
+  background:
+    radial-gradient(circle at top, #1b2140 0%, #111318 45%),
+    var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.app {
+  width: min(1100px, calc(100% - 32px));
+  margin: 24px auto 48px;
+}
+
+.header {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.header h1 {
+  margin: 0 0 8px;
+  font-size: 2rem;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--subtext);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.card {
+  background: linear-gradient(180deg, var(--card) 0%, var(--card-2) 100%);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+
+.card h2 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 1.1rem;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+label {
+  font-size: 0.95rem;
+  color: var(--subtext);
+}
+
+select,
+button {
+  font: inherit;
+}
+
+select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #0f1218;
+  color: var(--text);
+}
+
+button {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  background: var(--accent);
+  color: white;
+  font-weight: 700;
+  transition: transform 0.12s ease, opacity 0.12s ease, filter 0.12s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+button.secondary {
+  background: #49536a;
+}
+
+button.accent {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+}
+
+.button-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.status-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.status-box p {
+  margin: 6px 0;
+  color: var(--text);
+}
+
+.hint {
+  color: var(--subtext);
+  font-size: 0.92rem;
+  margin-top: 12px;
+}
+
+.token-box {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.token {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  min-height: 110px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.token-label {
+  color: var(--subtext);
+}
+
+.normal-token span:last-child,
+.special-token span:last-child {
+  font-size: 1.8rem;
+  font-weight: 800;
+}
+
+.gacha-result {
+  margin-top: 14px;
+  min-height: 130px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 16px;
+  line-height: 1.7;
+  white-space: pre-line;
+}
+
+.gacha-result.r {
+  border-color: #5a6478;
+}
+
+.gacha-result.sr {
+  border-color: #5f85ff;
+  box-shadow: 0 0 0 1px rgba(95, 133, 255, 0.22) inset;
+}
+
+.gacha-result.ssr {
+  border-color: #d6a7ff;
+  box-shadow:
+    0 0 0 1px rgba(214, 167, 255, 0.25) inset,
+    0 0 18px rgba(169, 139, 255, 0.24);
+}
+
+.log-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.log-list li {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  color: var(--text);
+}
+
+.log-list li:last-child {
+  border-bottom: none;
+}
+
+.empty-log {
+  color: var(--subtext);
+}
+
+@media (max-width: 820px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .full-width {
+    grid-column: auto;
+  }
+
+  .token-box {
+    grid-template-columns: 1fr;
+  }
+}

@@ -186,7 +186,6 @@ function runTimerLoop() {
     }
 
     syncTimerDisplay();
-    saveState();
   }, 1000);
 }
 
@@ -717,15 +716,6 @@ function roll1d100() {
     saveState();
     return;
   }
-  
-  lastRollEl.classList.remove("flash");
-  rollResultBox.classList.remove("flash");
-
-  void lastRollEl.offsetWidth;
-  void rollResultBox.offsetWidth;
-
-  lastRollEl.classList.add("flash");
-  rollResultBox.classList.add("flash");
 
   const progress = getCurrentProgress();
   if (!progress) return;
@@ -767,6 +757,15 @@ function roll1d100() {
 
   renderAll();
   saveState();
+
+  lastRollEl.classList.remove("flash");
+  rollResultBox.classList.remove("flash");
+
+  void lastRollEl.offsetWidth;
+  void rollResultBox.offsetWidth;
+
+  lastRollEl.classList.add("flash");
+  rollResultBox.classList.add("flash");
 }
 
 // -----------------------------
@@ -906,9 +905,6 @@ function bindEvents() {
     addLog(`📚 과목 변경: ${state.subject}`);
     renderAll();
     saveState();
-   startTimerBtn.addEventListener("click", startTimer);
-   pauseTimerBtn.addEventListener("click", pauseTimer);
-   resetTimerBtn.addEventListener("click", resetTimer);
   });
 
   unitSelect.addEventListener("change", (event) => {
@@ -945,13 +941,13 @@ function bindEvents() {
   resetTimerBtn.addEventListener("click", resetTimer);
 
   timerMinutesInput.addEventListener("change", () => {
-   if (!state.timer.isRunning) {
-    const minutes = Number(timerMinutesInput.value) || 15;
-    state.timer.durationSeconds = minutes * 60;
-    state.timer.remainingSeconds = minutes * 60;
-    saveState();
-    renderAll();
-   }
+    if (!state.timer.isRunning) {
+      const minutes = Number(timerMinutesInput.value) || 15;
+      state.timer.durationSeconds = minutes * 60;
+      state.timer.remainingSeconds = minutes * 60;
+      saveState();
+      renderAll();
+    }
   });
 }
 

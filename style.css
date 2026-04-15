@@ -508,17 +508,50 @@ button:disabled {
   font-size: 0.88rem;
 }
 
-#savedPromptList li:has(strong:contains("[R]")) {
+#savedPromptList li {
+  position: relative;
+  border-radius: 14px;
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.38);
+}
+
+.saved-r {
   background: rgba(244, 244, 255, 0.55);
 }
 
-#savedPromptList li:has(strong:contains("[SR]")) {
+.saved-sr {
   background: rgba(236, 245, 255, 0.72);
+  box-shadow: 0 0 14px rgba(186, 213, 255, 0.16);
 }
 
-#savedPromptList li:has(strong:contains("[SSR]")) {
+.saved-ssr {
   background: rgba(249, 239, 255, 0.82);
-  box-shadow: 0 0 18px rgba(221, 190, 255, 0.18);
+  box-shadow: 0 0 18px rgba(221, 190, 255, 0.22);
+  border: 1px solid rgba(220, 167, 255, 0.45);
+}
+
+.saved-rarity-badge {
+  display: inline-block;
+  margin-bottom: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  background: rgba(255,255,255,0.55);
+}
+
+.saved-r .saved-rarity-badge {
+  color: #6f718c;
+}
+
+.saved-sr .saved-rarity-badge {
+  color: #5a78b8;
+  background: rgba(217, 235, 255, 0.85);
+}
+
+.saved-ssr .saved-rarity-badge {
+  color: #8d63b8;
+  background: rgba(245, 223, 255, 0.92);
+  box-shadow: 0 0 10px rgba(220, 167, 255, 0.22);
 }
 
 .empty-log {

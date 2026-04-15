@@ -8,6 +8,9 @@ const {
 
 const STORAGE_KEY = "hazel-study-trpg-v3";
 
+// -----------------------------
+// 1. 기본 상태
+// -----------------------------
 function createDefaultState() {
   return {
     subjects: {},
@@ -26,6 +29,9 @@ function createDefaultState() {
 
 const state = createDefaultState();
 
+// -----------------------------
+// 2. DOM 참조
+// -----------------------------
 const subjectSelect = document.getElementById("subjectSelect");
 const unitSelect = document.getElementById("unitSelect");
 
@@ -33,6 +39,8 @@ const newSubjectInput = document.getElementById("newSubjectInput");
 const newUnitInput = document.getElementById("newUnitInput");
 const addSubjectBtn = document.getElementById("addSubjectBtn");
 const addUnitBtn = document.getElementById("addUnitBtn");
+const deleteSubjectBtn = document.getElementById("deleteSubjectBtn");
+const deleteUnitBtn = document.getElementById("deleteUnitBtn");
 
 const currentSubject = document.getElementById("currentSubject");
 const currentUnit = document.getElementById("currentUnit");
@@ -59,6 +67,9 @@ const useSpecialTokenCheckbox = document.getElementById("useSpecialToken");
 const savePromptBtn = document.getElementById("savePromptBtn");
 const savedPromptList = document.getElementById("savedPromptList");
 
+// -----------------------------
+// 3. 유틸
+// -----------------------------
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
@@ -127,6 +138,9 @@ function canDraw() {
   return state.normalToken >= 1;
 }
 
+// -----------------------------
+// 4. 저장 / 불러오기
+// -----------------------------
 function saveState() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -161,6 +175,9 @@ function loadState() {
   }
 }
 
+// -----------------------------
+// 5. 드롭다운 초기화
+// -----------------------------
 function initSubjectOptions() {
   subjectSelect.innerHTML = "";
 
@@ -218,6 +235,9 @@ function initUnitOptions() {
   ensureProgress(state.subject, state.unit);
 }
 
+// -----------------------------
+// 6. 렌더
+// -----------------------------
 function renderStatus() {
   const progress = getCurrentProgress();
 
@@ -240,6 +260,9 @@ function renderStatus() {
   resetProgressBtn.disabled = !validUnit;
   rollBtn.disabled = !canRoll();
   drawBtn.disabled = !canDraw();
+
+  deleteSubjectBtn.disabled = !state.subject;
+  deleteUnitBtn.disabled = !hasCurrentUnit();
 
   useSpecialTokenCheckbox.disabled = state.specialToken < 1;
   savePromptBtn.disabled = !state.currentGachaResult;
@@ -314,6 +337,9 @@ function renderAll() {
   renderSavedPrompts();
 }
 
+// -----------------------------
+// 7. 과목 / 소단원 추가
+// -----------------------------
 function addSubject() {
   const newSubject = newSubjectInput.value.trim();
 
@@ -382,6 +408,92 @@ function addUnit() {
   saveState();
 }
 
+// -----------------------------
+// 8. 과목 / 소단원 삭제
+// -----------------------------
+function deleteUnit() {
+  if (!hasCurrentUnit()) {
+    addLog("⚠️ 삭제할 소단원이 없습니다.");
+    renderAll();
+    saveState();
+    return;
+  }
+
+  const ok = confirm(`정말 "${state.subject} - ${state.unit}" 소단원을 삭제할까요?`);
+  if (!ok) return;
+
+  const subject = state.subject;
+  const unit = state.unit;
+  const units = state.subjects[subject];
+  const unitKey = getUnitKey(subject, unit);
+
+  state.subjects[subject] = units.filter((item) => item !== unit);
+  delete state.unitProgress[unitKey];
+
+  addLog(`🗑️ ${subject} - ${unit} 소단원을 삭제했습니다.`);
+
+  const remainingUnits = state.subjects[subject];
+
+  if (remainingUnits.length > 0) {
+    state.unit = remainingUnits[0];
+    ensureProgress(state.subject, state.unit);
+  } else {
+    state.unit = "";
+  }
+
+  initUnitOptions();
+  renderAll();
+  saveState();
+}
+
+function deleteSubject() {
+  if (!state.subject) {
+    addLog("⚠️ 삭제할 과목이 없습니다.");
+    renderAll();
+    saveState();
+    return;
+  }
+
+  const ok = confirm(
+    `정말 "${state.subject}" 과목을 삭제할까요?\n소단원과 진행도도 함께 삭제됩니다.`
+  );
+  if (!ok) return;
+
+  const subjectToDelete = state.subject;
+  const unitsToDelete = state.subjects[subjectToDelete] || [];
+
+  unitsToDelete.forEach((unit) => {
+    const key = getUnitKey(subjectToDelete, unit);
+    delete state.unitProgress[key];
+  });
+
+  delete state.subjects[subjectToDelete];
+
+  addLog(`🗑️ ${subjectToDelete} 과목을 삭제했습니다.`);
+
+  const remainingSubjects = Object.keys(state.subjects);
+
+  if (remainingSubjects.length > 0) {
+    state.subject = remainingSubjects[0];
+    const nextUnits = state.subjects[state.subject] || [];
+    state.unit = nextUnits[0] || "";
+    if (state.unit) {
+      ensureProgress(state.subject, state.unit);
+    }
+  } else {
+    state.subject = "";
+    state.unit = "";
+  }
+
+  initSubjectOptions();
+  initUnitOptions();
+  renderAll();
+  saveState();
+}
+
+// -----------------------------
+// 9. 학습 로직
+// -----------------------------
 function completeProblem(type) {
   if (!hasCurrentUnit()) {
     addLog("⚠️ 먼저 과목과 소단원을 준비해 주세요.");
@@ -424,6 +536,9 @@ function resetCurrentProgress() {
   saveState();
 }
 
+// -----------------------------
+// 10. 판정 로직
+// -----------------------------
 function roll1d100() {
   if (!canRoll()) {
     addLog("⚠️ 아직 판정할 수 없습니다. 문제를 더 풀어 주세요.");
@@ -474,6 +589,9 @@ function roll1d100() {
   saveState();
 }
 
+// -----------------------------
+// 11. 가챠 로직
+// -----------------------------
 function drawGacha() {
   if (!canDraw()) {
     addLog("⚠️ 일반 토큰이 부족합니다.");
@@ -530,7 +648,6 @@ function drawGacha() {
       `【R】\n` +
       `상황: ${setting}`;
     resultClass = "r";
-
     resultData.setting = setting;
   } else if (rarity === "SR") {
     resultText =
@@ -538,7 +655,6 @@ function drawGacha() {
       `상황: ${setting}\n` +
       `감정: ${emotion}`;
     resultClass = "sr";
-
     resultData.setting = setting;
     resultData.emotion = emotion;
   } else {
@@ -599,6 +715,9 @@ function deleteSavedPrompt(index) {
   saveState();
 }
 
+// -----------------------------
+// 12. 이벤트 연결
+// -----------------------------
 function bindEvents() {
   subjectSelect.addEventListener("change", (event) => {
     state.subject = event.target.value;
@@ -618,6 +737,8 @@ function bindEvents() {
 
   addSubjectBtn.addEventListener("click", addSubject);
   addUnitBtn.addEventListener("click", addUnit);
+  deleteSubjectBtn.addEventListener("click", deleteSubject);
+  deleteUnitBtn.addEventListener("click", deleteUnit);
 
   newSubjectInput.addEventListener("keydown", (event) => {
     if (event.key === "Enter") addSubject();
@@ -635,6 +756,9 @@ function bindEvents() {
   savePromptBtn.addEventListener("click", saveCurrentPrompt);
 }
 
+// -----------------------------
+// 13. 앱 시작
+// -----------------------------
 function initApp() {
   const loaded = loadState();
 

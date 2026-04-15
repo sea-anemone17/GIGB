@@ -170,6 +170,39 @@ function finishTimer() {
 
   addLog("✅ 타이머 완료!");
   recordTimerSuccess();
+
+  showTimerCelebration(); // ⭐ 이거 추가
+}
+
+function showTimerCelebration() {
+  const praiseEl = document.getElementById("timerPraise");
+  const timerBox = timerDisplay;
+
+  // 문구 랜덤
+  const messages = [
+    "집중 성공!",
+    "좋아요, 흐름 이어졌어요.",
+    "완료. 한 턴 확보.",
+    "잘했어요. 계속 갑니다.",
+    "집중 유지 성공."
+  ];
+
+  praiseEl.textContent = pickRandom(messages);
+
+  // 애니메이션 트리거
+  praiseEl.classList.remove("show");
+  timerBox.classList.remove("timer-finished");
+
+  void praiseEl.offsetWidth;
+
+  praiseEl.classList.add("show");
+  timerBox.classList.add("timer-finished");
+
+  // 1초 후 제거
+  setTimeout(() => {
+    praiseEl.classList.remove("show");
+    timerBox.classList.remove("timer-finished");
+  }, 1000);
 }
 
 function runTimerLoop() {

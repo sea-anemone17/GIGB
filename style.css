@@ -7,9 +7,6 @@
   --line: #30384a;
   --accent: #7c9cff;
   --accent-2: #a98bff;
-  --success: #60d394;
-  --warning: #ffd166;
-  --danger: #ff6b6b;
   --shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
   --radius: 18px;
 }
@@ -172,7 +169,6 @@ button:disabled {
 
 .status-box p {
   margin: 6px 0;
-  color: var(--text);
 }
 
 .hint {
@@ -245,7 +241,6 @@ button:disabled {
 .log-list li {
   padding: 10px 12px;
   border-bottom: 1px solid var(--line);
-  color: var(--text);
 }
 
 .log-list li:last-child {

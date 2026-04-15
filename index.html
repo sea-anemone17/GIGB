@@ -10,7 +10,7 @@
   <div class="app">
     <header class="header card">
       <h1>🎲 Hazel Study TRPG</h1>
-      <p class="subtitle">공부 → 판정 → 토큰 → 가챠</p>
+      <p class="subtitle">공부 → 판정 → 토큰 → 소재 가챠</p>
     </header>
 
     <main class="grid">
@@ -28,6 +28,36 @@
           <select id="unitSelect"></select>
         </div>
 
+        <div class="field">
+          <label for="newSubjectInput">새 과목 추가</label>
+          <div class="inline-row">
+            <input
+              id="newSubjectInput"
+              type="text"
+              placeholder="예: 과학"
+              maxlength="30"
+            />
+            <button id="addSubjectBtn" class="secondary" type="button">
+              과목 추가
+            </button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="newUnitInput">새 소단원 추가</label>
+          <div class="inline-row">
+            <input
+              id="newUnitInput"
+              type="text"
+              placeholder="예: 역학"
+              maxlength="40"
+            />
+            <button id="addUnitBtn" class="secondary" type="button">
+              소단원 추가
+            </button>
+          </div>
+        </div>
+
         <div class="status-box">
           <p><strong>현재 과목:</strong> <span id="currentSubject">-</span></p>
           <p><strong>현재 소단원:</strong> <span id="currentUnit">-</span></p>
@@ -37,8 +67,10 @@
         </div>
 
         <div class="button-row">
-          <button id="solveCorrectBtn">정답 문제 완료 (+6%)</button>
-          <button id="solveWrongBtn" class="secondary">오답 시도 완료 (+2%)</button>
+          <button id="solveCorrectBtn" type="button">정답 문제 완료 (+6%)</button>
+          <button id="solveWrongBtn" class="secondary" type="button">
+            오답 시도 완료 (+2%)
+          </button>
         </div>
       </section>
 
@@ -51,11 +83,9 @@
           <p><strong>최근 판정 결과:</strong> <span id="rollResult">-</span></p>
         </div>
 
-        <button id="rollBtn" class="accent">1d100 판정</button>
+        <button id="rollBtn" class="accent" type="button">1d100 판정</button>
 
-        <p class="hint">
-          문제 3개를 풀면 판정 1회가 가능합니다.
-        </p>
+        <p class="hint">문제 3개를 풀면 판정 1회가 가능합니다.</p>
       </section>
 
       <!-- 토큰 -->
@@ -84,7 +114,7 @@
         </div>
 
         <div class="button-row">
-          <button id="drawBtn" class="accent">일반 가챠 1회</button>
+          <button id="drawBtn" class="accent" type="button">일반 가챠 1회</button>
         </div>
 
         <div class="gacha-result" id="gachaResult">

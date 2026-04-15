@@ -307,21 +307,9 @@ function renderSavedPrompts() {
     return;
   }
 
-  function renderSavedPrompts() {
-   savedPromptList.innerHTML = "";
-
-   if (!state.savedPrompts || state.savedPrompts.length === 0) {
-    const li = document.createElement("li");
-    li.className = "empty-log";
-    li.textContent = "아직 저장된 소재가 없습니다.";
-    savedPromptList.appendChild(li);
-    return;
-   }
-
-   state.savedPrompts.forEach((prompt, index) => {
+  state.savedPrompts.forEach((prompt, index) => {
     const li = document.createElement("li");
 
-    // rarity별 클래스 추가
     const rarityClass = `saved-${String(prompt.rarity || "").toLowerCase()}`;
     li.classList.add(rarityClass);
 
@@ -336,16 +324,8 @@ function renderSavedPrompts() {
       </div>
     `;
 
-     savedPromptList.appendChild(li);
-    });
-
-  savedPromptList.querySelectorAll("[data-delete-index]").forEach((button) => {
-    button.addEventListener("click", (event) => {
-      const index = Number(event.currentTarget.dataset.deleteIndex);
-      deleteSavedPrompt(index);
-    });
+    savedPromptList.appendChild(li);
   });
-}
 
   savedPromptList.querySelectorAll("[data-delete-index]").forEach((button) => {
     button.addEventListener("click", (event) => {

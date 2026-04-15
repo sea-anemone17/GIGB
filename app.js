@@ -1,57 +1,13 @@
-// -----------------------------
-// 1. 연성소재 데이터
-// -----------------------------
-const SETTING_POOL = [
-  "밀폐 공간",
-  "야간 경계",
-  "치료 직후",
-  "비 오는 날 귀환 후",
-  "임무 전 대기",
-  "불 꺼진 사무실",
-  "좁은 복도",
-  "장거리 이동 중",
-  "부상 회복 중",
-  "회의 후 단둘이 남음"
-];
+const {
+  settings: SETTING_POOL,
+  emotions: EMOTION_POOL,
+  twists: TWIST_POOL,
+  ssrKeywords: SSR_POOL,
+  probabilities: GACHA_PROB
+} = window.PROMPT_DATA;
 
-const EMOTION_POOL = [
-  "억제 실패 직전",
-  "거리 유지 시도",
-  "무의식적 집착",
-  "상대는 눈치채지 못함",
-  "감정을 부정 중",
-  "자각 없는 동요",
-  "말하면 무너질 것 같음",
-  "이유 모를 소유욕",
-  "평소보다 통제가 약함",
-  "괜히 예민해짐"
-];
+const STORAGE_KEY = "hazel-study-trpg-v3";
 
-const TWIST_POOL = [
-  "들키기 직전",
-  "시간 제한",
-  "제3자가 바로 근처에 있음",
-  "갑작스런 신체 접촉",
-  "오해 발생",
-  "상대의 무방비",
-  "비밀이 하나 더 있음",
-  "퇴로 없음"
-];
-
-const SSR_POOL = [
-  "이미 선을 넘은 상태",
-  "더 이상 못 참음",
-  "무의식적 집착 노출",
-  "항상 참던 쪽이 먼저 무너짐",
-  "절대 들키면 안 되는 순간",
-  "자각 없이 드러남"
-];
-
-const STORAGE_KEY = "hazel-study-trpg-v2";
-
-// -----------------------------
-// 2. 기본 상태
-// -----------------------------
 function createDefaultState() {
   return {
     subjects: {},
@@ -62,15 +18,14 @@ function createDefaultState() {
     logs: [],
     gachaText: "아직 가챠 결과가 없습니다.",
     gachaClass: "",
+    currentGachaResult: null,
+    savedPrompts: [],
     unitProgress: {}
   };
 }
 
 const state = createDefaultState();
 
-// -----------------------------
-// 3. DOM 참조
-// -----------------------------
 const subjectSelect = document.getElementById("subjectSelect");
 const unitSelect = document.getElementById("unitSelect");
 
@@ -100,9 +55,10 @@ const resetProgressBtn = document.getElementById("resetProgressBtn");
 const gachaResult = document.getElementById("gachaResult");
 const logList = document.getElementById("logList");
 
-// -----------------------------
-// 4. 유틸
-// -----------------------------
+const useSpecialTokenCheckbox = document.getElementById("useSpecialToken");
+const savePromptBtn = document.getElementById("savePromptBtn");
+const savedPromptList = document.getElementById("savedPromptList");
+
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
@@ -149,7 +105,11 @@ function getCurrentProgress() {
 }
 
 function hasCurrentUnit() {
-  return Boolean(state.subject && state.unit && (state.subjects[state.subject] || []).includes(state.unit));
+  return Boolean(
+    state.subject &&
+      state.unit &&
+      (state.subjects[state.subject] || []).includes(state.unit)
+  );
 }
 
 function getRemainingForRoll() {
@@ -167,9 +127,6 @@ function canDraw() {
   return state.normalToken >= 1;
 }
 
-// -----------------------------
-// 5. 저장 / 불러오기
-// -----------------------------
 function saveState() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -193,6 +150,8 @@ function loadState() {
     state.logs = Array.isArray(parsed.logs) ? parsed.logs : [];
     state.gachaText = parsed.gachaText || "아직 가챠 결과가 없습니다.";
     state.gachaClass = parsed.gachaClass || "";
+    state.currentGachaResult = parsed.currentGachaResult || null;
+    state.savedPrompts = Array.isArray(parsed.savedPrompts) ? parsed.savedPrompts : [];
     state.unitProgress = parsed.unitProgress || {};
 
     return true;
@@ -202,9 +161,6 @@ function loadState() {
   }
 }
 
-// -----------------------------
-// 6. 드롭다운 초기화
-// -----------------------------
 function initSubjectOptions() {
   subjectSelect.innerHTML = "";
 
@@ -262,9 +218,6 @@ function initUnitOptions() {
   ensureProgress(state.subject, state.unit);
 }
 
-// -----------------------------
-// 7. 렌더
-// -----------------------------
 function renderStatus() {
   const progress = getCurrentProgress();
 
@@ -287,6 +240,13 @@ function renderStatus() {
   resetProgressBtn.disabled = !validUnit;
   rollBtn.disabled = !canRoll();
   drawBtn.disabled = !canDraw();
+
+  useSpecialTokenCheckbox.disabled = state.specialToken < 1;
+  savePromptBtn.disabled = !state.currentGachaResult;
+
+  if (state.specialToken < 1) {
+    useSpecialTokenCheckbox.checked = false;
+  }
 
   gachaResult.textContent = state.gachaText;
   gachaResult.className = "gacha-result";
@@ -313,14 +273,47 @@ function renderLogs() {
   });
 }
 
+function renderSavedPrompts() {
+  savedPromptList.innerHTML = "";
+
+  if (!state.savedPrompts || state.savedPrompts.length === 0) {
+    const li = document.createElement("li");
+    li.className = "empty-log";
+    li.textContent = "아직 저장된 소재가 없습니다.";
+    savedPromptList.appendChild(li);
+    return;
+  }
+
+  state.savedPrompts.forEach((prompt, index) => {
+    const li = document.createElement("li");
+
+    li.innerHTML = `
+      <strong>[${prompt.rarity}]</strong><br>
+      상황: ${prompt.setting || "-"}<br>
+      ${prompt.emotion ? `감정: ${prompt.emotion}<br>` : ""}
+      ${prompt.twist ? `트위스트: ${prompt.twist}<br>` : ""}
+      ${prompt.specialKeyword ? `특별 키워드: ${prompt.specialKeyword}<br>` : ""}
+      <div class="saved-item-actions">
+        <button class="secondary" type="button" data-delete-index="${index}">삭제</button>
+      </div>
+    `;
+    savedPromptList.appendChild(li);
+  });
+
+  savedPromptList.querySelectorAll("[data-delete-index]").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      const index = Number(event.currentTarget.dataset.deleteIndex);
+      deleteSavedPrompt(index);
+    });
+  });
+}
+
 function renderAll() {
   renderStatus();
   renderLogs();
+  renderSavedPrompts();
 }
 
-// -----------------------------
-// 8. 과목 / 소단원 추가
-// -----------------------------
 function addSubject() {
   const newSubject = newSubjectInput.value.trim();
 
@@ -389,9 +382,6 @@ function addUnit() {
   saveState();
 }
 
-// -----------------------------
-// 9. 학습 로직
-// -----------------------------
 function completeProblem(type) {
   if (!hasCurrentUnit()) {
     addLog("⚠️ 먼저 과목과 소단원을 준비해 주세요.");
@@ -434,9 +424,6 @@ function resetCurrentProgress() {
   saveState();
 }
 
-// -----------------------------
-// 10. 판정 로직
-// -----------------------------
 function roll1d100() {
   if (!canRoll()) {
     addLog("⚠️ 아직 판정할 수 없습니다. 문제를 더 풀어 주세요.");
@@ -487,9 +474,6 @@ function roll1d100() {
   saveState();
 }
 
-// -----------------------------
-// 11. 가챠 로직
-// -----------------------------
 function drawGacha() {
   if (!canDraw()) {
     addLog("⚠️ 일반 토큰이 부족합니다.");
@@ -498,18 +482,32 @@ function drawGacha() {
     return;
   }
 
+  const useSpecial = useSpecialTokenCheckbox.checked;
+
+  if (useSpecial && state.specialToken < 1) {
+    addLog("⚠️ 스페셜 토큰이 부족합니다.");
+    useSpecialTokenCheckbox.checked = false;
+    renderAll();
+    saveState();
+    return;
+  }
+
   state.normalToken -= 1;
 
+  if (useSpecial) {
+    state.specialToken -= 1;
+  }
+
+  const probs = useSpecial ? GACHA_PROB.boosted : GACHA_PROB.normal;
   const roll = Math.random();
+
   let rarity = "R";
-
-  const ssrChance = state.specialToken > 0 ? 0.12 : 0.05;
-  const srChance = 0.30;
-
-  if (roll < ssrChance) {
+  if (roll < probs.ssr) {
     rarity = "SSR";
-  } else if (roll < srChance) {
+  } else if (roll < probs.ssr + probs.sr) {
     rarity = "SR";
+  } else {
+    rarity = "R";
   }
 
   const setting = pickRandom(SETTING_POOL);
@@ -518,18 +516,31 @@ function drawGacha() {
 
   let resultText = "";
   let resultClass = "";
+  let resultData = {
+    rarity,
+    setting: null,
+    emotion: null,
+    twist: null,
+    specialKeyword: null,
+    createdAt: new Date().toISOString()
+  };
 
   if (rarity === "R") {
     resultText =
       `【R】\n` +
       `상황: ${setting}`;
     resultClass = "r";
+
+    resultData.setting = setting;
   } else if (rarity === "SR") {
     resultText =
       `【SR】\n` +
       `상황: ${setting}\n` +
       `감정: ${emotion}`;
     resultClass = "sr";
+
+    resultData.setting = setting;
+    resultData.emotion = emotion;
   } else {
     const ssrKeyword = pickRandom(SSR_POOL);
 
@@ -540,19 +551,54 @@ function drawGacha() {
       `트위스트: ${twist}\n` +
       `특별 키워드: ${ssrKeyword}`;
     resultClass = "ssr";
+
+    resultData.setting = setting;
+    resultData.emotion = emotion;
+    resultData.twist = twist;
+    resultData.specialKeyword = ssrKeyword;
   }
 
   state.gachaText = resultText;
   state.gachaClass = resultClass;
+  state.currentGachaResult = resultData;
 
-  addLog(`🎰 연성소재 가챠 결과: ${rarity}`);
+  if (useSpecial) {
+    addLog(`🎰 스페셜 토큰 사용 가챠 결과: ${rarity}`);
+    useSpecialTokenCheckbox.checked = false;
+  } else {
+    addLog(`🎰 연성소재 가챠 결과: ${rarity}`);
+  }
+
   renderAll();
   saveState();
 }
 
-// -----------------------------
-// 12. 이벤트 연결
-// -----------------------------
+function saveCurrentPrompt() {
+  if (!state.currentGachaResult) {
+    addLog("⚠️ 저장할 가챠 결과가 없습니다.");
+    renderAll();
+    saveState();
+    return;
+  }
+
+  state.savedPrompts.unshift({ ...state.currentGachaResult });
+
+  if (state.savedPrompts.length > 50) {
+    state.savedPrompts = state.savedPrompts.slice(0, 50);
+  }
+
+  addLog(`💾 ${state.currentGachaResult.rarity} 소재를 보관함에 저장했습니다.`);
+  renderAll();
+  saveState();
+}
+
+function deleteSavedPrompt(index) {
+  state.savedPrompts.splice(index, 1);
+  addLog("🗑️ 보관함에서 소재를 삭제했습니다.");
+  renderAll();
+  saveState();
+}
+
 function bindEvents() {
   subjectSelect.addEventListener("change", (event) => {
     state.subject = event.target.value;
@@ -586,11 +632,9 @@ function bindEvents() {
   rollBtn.addEventListener("click", roll1d100);
   drawBtn.addEventListener("click", drawGacha);
   resetProgressBtn.addEventListener("click", resetCurrentProgress);
+  savePromptBtn.addEventListener("click", saveCurrentPrompt);
 }
 
-// -----------------------------
-// 13. 앱 시작
-// -----------------------------
 function initApp() {
   const loaded = loadState();
 

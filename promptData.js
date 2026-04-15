@@ -174,8 +174,8 @@ window.PROMPT_DATA = {
     "연속 2회",
     "목줄",
     "수갑",
-    "안대"
-    "뒤로"
+    "안대",
+    "뒤로",
   ],
 
   probabilities: {

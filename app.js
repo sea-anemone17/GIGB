@@ -23,6 +23,13 @@ function createDefaultState() {
     gachaClass: "",
     currentGachaResult: null,
     savedPrompts: [],
+    timer: {
+     durationSeconds: 15 * 60,
+     remainingSeconds: 15 * 60,
+     isRunning: false,
+     isPaused: false,
+     lastUpdatedAt: null
+    },
     unitProgress: {}
   };
 }
@@ -68,9 +75,119 @@ const useSpecialTokenCheckbox = document.getElementById("useSpecialToken");
 const savePromptBtn = document.getElementById("savePromptBtn");
 const savedPromptList = document.getElementById("savedPromptList");
 
+const timerMinutesInput = document.getElementById("timerMinutesInput");
+const timerDisplay = document.getElementById("timerDisplay");
+const timerStatus = document.getElementById("timerStatus");
+
+const startTimerBtn = document.getElementById("startTimerBtn");
+const pauseTimerBtn = document.getElementById("pauseTimerBtn");
+const resetTimerBtn = document.getElementById("resetTimerBtn");
+
 // -----------------------------
 // 3. 유틸
 // -----------------------------
+
+let timerInterval = null;
+
+function formatTime(seconds) {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+}
+
+function syncTimerDisplay() {
+  timerDisplay.textContent = formatTime(state.timer.remainingSeconds);
+
+  if (state.timer.isRunning) {
+    timerStatus.textContent = state.timer.isPaused ? "일시정지" : "집중 중";
+  } else {
+    timerStatus.textContent = "대기 중";
+  }
+}
+
+function stopTimerInterval() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+}
+
+function startTimer() {
+  const inputMinutes = Number(timerMinutesInput.value);
+
+  if (!state.timer.isRunning) {
+    const minutes = Number.isFinite(inputMinutes) && inputMinutes > 0 ? inputMinutes : 15;
+    state.timer.durationSeconds = minutes * 60;
+    state.timer.remainingSeconds = minutes * 60;
+    state.timer.isRunning = true;
+    state.timer.isPaused = false;
+  } else if (state.timer.isPaused) {
+    state.timer.isPaused = false;
+  }
+
+  state.timer.lastUpdatedAt = Date.now();
+  addLog(`⏱️ 타이머 시작: ${Math.floor(state.timer.durationSeconds / 60)}분`);
+  saveState();
+  runTimerLoop();
+  renderAll();
+}
+
+function pauseTimer() {
+  if (!state.timer.isRunning || state.timer.isPaused) return;
+
+  state.timer.isPaused = true;
+  stopTimerInterval();
+  addLog("⏸️ 타이머 일시정지");
+  saveState();
+  renderAll();
+}
+
+function resetTimer() {
+  stopTimerInterval();
+
+  const inputMinutes = Number(timerMinutesInput.value);
+  const minutes = Number.isFinite(inputMinutes) && inputMinutes > 0 ? inputMinutes : 15;
+
+  state.timer.durationSeconds = minutes * 60;
+  state.timer.remainingSeconds = minutes * 60;
+  state.timer.isRunning = false;
+  state.timer.isPaused = false;
+  state.timer.lastUpdatedAt = null;
+
+  addLog("🔄 타이머 리셋");
+  saveState();
+  renderAll();
+}
+
+function finishTimer() {
+  stopTimerInterval();
+
+  state.timer.remainingSeconds = 0;
+  state.timer.isRunning = false;
+  state.timer.isPaused = false;
+  state.timer.lastUpdatedAt = null;
+
+  addLog("✅ 타이머 완료!");
+  recordTimerSuccess();
+}
+
+function runTimerLoop() {
+  stopTimerInterval();
+
+  timerInterval = setInterval(() => {
+    if (!state.timer.isRunning || state.timer.isPaused) return;
+
+    state.timer.remainingSeconds -= 1;
+
+    if (state.timer.remainingSeconds <= 0) {
+      finishTimer();
+      return;
+    }
+
+    syncTimerDisplay();
+    saveState();
+  }, 1000);
+}
 
 function clearLogs() {
   state.logs = [];
@@ -89,8 +206,8 @@ function pickRandom(arr) {
 
 function addLog(message) {
   state.logs.unshift(message);
-  if (state.logs.length > 12) {
-    state.logs = state.logs.slice(0, 12);
+  if (state.logs.length > 5) {
+    state.logs = state.logs.slice(0, 5);
   }
 }
 
@@ -176,6 +293,13 @@ function loadState() {
     state.currentGachaResult = parsed.currentGachaResult || null;
     state.savedPrompts = Array.isArray(parsed.savedPrompts) ? parsed.savedPrompts : [];
     state.unitProgress = parsed.unitProgress || {};
+    state.timer = parsed.timer || {
+     durationSeconds: 15 * 60,
+     remainingSeconds: 15 * 60,
+     isRunning: false,
+     isPaused: false,
+     lastUpdatedAt: null
+    };
 
     return true;
   } catch (error) {
@@ -275,6 +399,12 @@ function renderStatus() {
 
   useSpecialTokenCheckbox.disabled = state.specialToken < 1;
   savePromptBtn.disabled = !state.currentGachaResult;
+
+  syncTimerDisplay();
+
+  startTimerBtn.disabled = state.timer.isRunning && !state.timer.isPaused;
+  pauseTimerBtn.disabled = !state.timer.isRunning || state.timer.isPaused;
+  resetTimerBtn.disabled = false;
 
   if (state.specialToken < 1) {
     useSpecialTokenCheckbox.checked = false;
@@ -752,6 +882,9 @@ function bindEvents() {
     addLog(`📚 과목 변경: ${state.subject}`);
     renderAll();
     saveState();
+   startTimerBtn.addEventListener("click", startTimer);
+   pauseTimerBtn.addEventListener("click", pauseTimer);
+   resetTimerBtn.addEventListener("click", resetTimer);
   });
 
   unitSelect.addEventListener("change", (event) => {
@@ -782,6 +915,20 @@ function bindEvents() {
   resetProgressBtn.addEventListener("click", resetCurrentProgress);
   savePromptBtn.addEventListener("click", saveCurrentPrompt);
   clearLogBtn.addEventListener("click", clearLogs);
+
+  startTimerBtn.addEventListener("click", startTimer);
+  pauseTimerBtn.addEventListener("click", pauseTimer);
+  resetTimerBtn.addEventListener("click", resetTimer);
+
+  timerMinutesInput.addEventListener("change", () => {
+   if (!state.timer.isRunning) {
+    const minutes = Number(timerMinutesInput.value) || 15;
+    state.timer.durationSeconds = minutes * 60;
+    state.timer.remainingSeconds = minutes * 60;
+    saveState();
+    renderAll();
+   }
+  });
 }
 
 // -----------------------------
@@ -797,6 +944,12 @@ function initApp() {
   if (!loaded) {
     addLog("✨ 과목과 소단원을 직접 추가해서 시스템을 시작해 보세요.");
     saveState();
+  }
+
+  timerMinutesInput.value = Math.max(1, Math.floor((state.timer?.durationSeconds || 900) / 60));
+
+  if (state.timer && state.timer.isRunning && !state.timer.isPaused) {
+   runTimerLoop();
   }
 
   renderAll();

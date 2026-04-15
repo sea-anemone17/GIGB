@@ -307,11 +307,26 @@ function renderSavedPrompts() {
     return;
   }
 
-  state.savedPrompts.forEach((prompt, index) => {
+  function renderSavedPrompts() {
+   savedPromptList.innerHTML = "";
+
+   if (!state.savedPrompts || state.savedPrompts.length === 0) {
+    const li = document.createElement("li");
+    li.className = "empty-log";
+    li.textContent = "아직 저장된 소재가 없습니다.";
+    savedPromptList.appendChild(li);
+    return;
+   }
+
+   state.savedPrompts.forEach((prompt, index) => {
     const li = document.createElement("li");
 
+    // rarity별 클래스 추가
+    const rarityClass = `saved-${String(prompt.rarity || "").toLowerCase()}`;
+    li.classList.add(rarityClass);
+
     li.innerHTML = `
-      <strong>[${prompt.rarity}]</strong><br>
+      <strong class="saved-rarity-badge">[${prompt.rarity}]</strong><br>
       상황: ${prompt.setting || "-"}<br>
       ${prompt.emotion ? `감정: ${prompt.emotion}<br>` : ""}
       ${prompt.twist ? `트위스트: ${prompt.twist}<br>` : ""}
@@ -320,8 +335,17 @@ function renderSavedPrompts() {
         <button class="secondary" type="button" data-delete-index="${index}">삭제</button>
       </div>
     `;
-    savedPromptList.appendChild(li);
+
+     savedPromptList.appendChild(li);
+    });
+
+  savedPromptList.querySelectorAll("[data-delete-index]").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      const index = Number(event.currentTarget.dataset.deleteIndex);
+      deleteSavedPrompt(index);
+    });
   });
+}
 
   savedPromptList.querySelectorAll("[data-delete-index]").forEach((button) => {
     button.addEventListener("click", (event) => {

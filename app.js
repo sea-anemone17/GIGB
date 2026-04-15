@@ -6,7 +6,7 @@ const {
   probabilities: GACHA_PROB
 } = window.PROMPT_DATA;
 
-const STORAGE_KEY = "hazel-study-trpg-v3";
+const STORAGE_KEY = "hazel-study-trpg-v4";
 
 // -----------------------------
 // 1. 기본 상태
@@ -54,8 +54,8 @@ const rollResultEl = document.getElementById("rollResult");
 const normalTokenEl = document.getElementById("normalToken");
 const specialTokenEl = document.getElementById("specialToken");
 
-const solveCorrectBtn = document.getElementById("solveCorrectBtn");
-const solveWrongBtn = document.getElementById("solveWrongBtn");
+const solveProblemBtn = document.getElementById("solveProblemBtn");
+const timerSuccessBtn = document.getElementById("timerSuccessBtn");
 const rollBtn = document.getElementById("rollBtn");
 const drawBtn = document.getElementById("drawBtn");
 const resetProgressBtn = document.getElementById("resetProgressBtn");
@@ -255,8 +255,8 @@ function renderStatus() {
 
   const validUnit = hasCurrentUnit();
 
-  solveCorrectBtn.disabled = !validUnit;
-  solveWrongBtn.disabled = !validUnit;
+  solveProblemBtn.disabled = !validUnit;
+  timerSuccessBtn.disabled = !validUnit;
   resetProgressBtn.disabled = !validUnit;
   rollBtn.disabled = !canRoll();
   drawBtn.disabled = !canDraw();
@@ -498,7 +498,7 @@ function deleteSubject() {
 // -----------------------------
 // 9. 학습 로직
 // -----------------------------
-function completeProblem(type) {
+function recordProblemSolved() {
   if (!hasCurrentUnit()) {
     addLog("⚠️ 먼저 과목과 소단원을 준비해 주세요.");
     renderAll();
@@ -511,15 +511,28 @@ function completeProblem(type) {
 
   progress.solvedCount += 1;
   progress.attemptsSinceRoll += 1;
+  progress.successRate = clamp(progress.successRate + 1, 0, 95);
 
-  if (type === "correct") {
-    progress.successRate = clamp(progress.successRate + 6, 0, 95);
-    addLog(`📘 ${state.subject} - ${state.unit}: 정답 문제 완료 → 성공률 +6`);
-  } else {
-    progress.successRate = clamp(progress.successRate + 2, 0, 95);
-    addLog(`📗 ${state.subject} - ${state.unit}: 오답 시도 완료 → 성공률 +2`);
+  addLog(`📘 ${state.subject} - ${state.unit}: 문제 풀이 완료 → 성공률 +1`);
+  renderAll();
+  saveState();
+}
+
+function recordTimerSuccess() {
+  if (!hasCurrentUnit()) {
+    addLog("⚠️ 먼저 과목과 소단원을 준비해 주세요.");
+    renderAll();
+    saveState();
+    return;
   }
 
+  const progress = getCurrentProgress();
+  if (!progress) return;
+
+  progress.attemptsSinceRoll += 1;
+  progress.successRate = clamp(progress.successRate + 1, 0, 95);
+
+  addLog(`⏱️ ${state.subject} - ${state.unit}: 타이머 성공 → 성공률 +1`);
   renderAll();
   saveState();
 }
@@ -752,8 +765,8 @@ function bindEvents() {
     if (event.key === "Enter") addUnit();
   });
 
-  solveCorrectBtn.addEventListener("click", () => completeProblem("correct"));
-  solveWrongBtn.addEventListener("click", () => completeProblem("wrong"));
+  solveProblemBtn.addEventListener("click", recordProblemSolved);
+  timerSuccessBtn.addEventListener("click", recordTimerSuccess);
   rollBtn.addEventListener("click", roll1d100);
   drawBtn.addEventListener("click", drawGacha);
   resetProgressBtn.addEventListener("click", resetCurrentProgress);

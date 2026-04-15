@@ -57,6 +57,7 @@ const remainingForRollEl = document.getElementById("remainingForRoll");
 
 const lastRollEl = document.getElementById("lastRoll");
 const rollResultEl = document.getElementById("rollResult");
+const rollResultBox = document.getElementById("rollResultBox");
 
 const normalTokenEl = document.getElementById("normalToken");
 const specialTokenEl = document.getElementById("specialToken");
@@ -380,6 +381,20 @@ function renderStatus() {
   solvedCountEl.textContent = progress ? progress.solvedCount : 0;
   remainingForRollEl.textContent = getRemainingForRoll();
 
+  rollResultBox.className = "roll-result-box";
+
+  const currentResult = progress?.lastRollResult ?? "-";
+
+  if (currentResult === "성공") {
+   rollResultBox.classList.add("result-success");
+  } else if (currentResult === "실패") {
+   rollResultBox.classList.add("result-fail");
+  } else if (currentResult === "대성공") {
+   rollResultBox.classList.add("result-critical-success");
+  } else if (currentResult === "대실패") {
+   rollResultBox.classList.add("result-critical-fail");
+  }
+
   lastRollEl.textContent = progress?.lastRoll ?? "-";
   rollResultEl.textContent = progress?.lastRollResult ?? "-";
 
@@ -702,6 +717,15 @@ function roll1d100() {
     saveState();
     return;
   }
+  
+  lastRollEl.classList.remove("flash");
+  rollResultBox.classList.remove("flash");
+
+  void lastRollEl.offsetWidth;
+  void rollResultBox.offsetWidth;
+
+  lastRollEl.classList.add("flash");
+  rollResultBox.classList.add("flash");
 
   const progress = getCurrentProgress();
   if (!progress) return;

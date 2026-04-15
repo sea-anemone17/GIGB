@@ -85,17 +85,23 @@ label {
 }
 
 select,
+input,
 button {
   font: inherit;
 }
 
-select {
+select,
+input {
   width: 100%;
   padding: 12px 14px;
   border-radius: 12px;
   border: 1px solid var(--line);
   background: #0f1218;
   color: var(--text);
+}
+
+input::placeholder {
+  color: #8791a5;
 }
 
 button {
@@ -106,7 +112,10 @@ button {
   background: var(--accent);
   color: white;
   font-weight: 700;
-  transition: transform 0.12s ease, opacity 0.12s ease, filter 0.12s ease;
+  transition:
+    transform 0.12s ease,
+    opacity 0.12s ease,
+    filter 0.12s ease;
 }
 
 button:hover {
@@ -137,6 +146,20 @@ button:disabled {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+.inline-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.inline-row input {
+  flex: 1;
+}
+
+.inline-row button {
+  white-space: nowrap;
 }
 
 .status-box {
@@ -244,5 +267,13 @@ button:disabled {
 
   .token-box {
     grid-template-columns: 1fr;
+  }
+
+  .inline-row {
+    flex-direction: column;
+  }
+
+  .inline-row button {
+    width: 100%;
   }
 }

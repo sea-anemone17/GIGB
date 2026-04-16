@@ -55,6 +55,7 @@ const currentUnit = document.getElementById("currentUnit");
 const successRateEl = document.getElementById("successRate");
 const solvedCountEl = document.getElementById("solvedCount");
 const remainingForRollEl = document.getElementById("remainingForRoll");
+const rollTicketsEl = document.getElementById("rollTickets");
 
 const lastRollEl = document.getElementById("lastRoll");
 const rollResultEl = document.getElementById("rollResult");
@@ -413,6 +414,7 @@ function renderStatus() {
   successRateEl.textContent = progress ? progress.successRate : 35;
   solvedCountEl.textContent = progress ? progress.solvedCount : 0;
   remainingForRollEl.textContent = getRemainingForRoll();
+  rollTicketsEl.textContent = state.rollTickets;
 
   rollResultBox.className = "roll-result-box";
 

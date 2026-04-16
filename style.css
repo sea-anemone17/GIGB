@@ -349,10 +349,42 @@ button.accent {
   box-shadow: var(--shadow-soft);
 }
 
+#clearLogBtn {
+  margin-bottom: 4px;
+}
+
 #drawBtn,
 #rollBtn {
   background: linear-gradient(135deg, #8c7cff, #67a8ff);
   color: white;
+}
+
+#rollBtn.ready {
+  animation: readyPulse 1.4s ease-in-out infinite;
+  box-shadow:
+    0 0 0 0 rgba(140, 124, 255, 0.28),
+    0 12px 28px rgba(118, 103, 203, 0.24);
+}
+
+@keyframes readyPulse {
+  0% {
+    transform: translateY(0);
+    box-shadow:
+      0 0 0 0 rgba(140, 124, 255, 0.18),
+      0 12px 28px rgba(118, 103, 203, 0.22);
+  }
+  50% {
+    transform: translateY(-1px);
+    box-shadow:
+      0 0 0 8px rgba(140, 124, 255, 0),
+      0 14px 30px rgba(118, 103, 203, 0.28);
+  }
+  100% {
+    transform: translateY(0);
+    box-shadow:
+      0 0 0 0 rgba(140, 124, 255, 0),
+      0 12px 28px rgba(118, 103, 203, 0.22);
+  }
 }
 
 #resetTimerBtn,
@@ -402,7 +434,11 @@ button.accent {
 }
 
 .status-box p {
-  margin: 6px 0;
+  margin: 0;
+}
+
+.status-box p + p {
+  margin-top: 8px;
 }
 
 .hint {

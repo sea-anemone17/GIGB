@@ -1,0 +1,109 @@
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-1: #f5f3ff;
+  --bg-2: #eef5ff;
+  --bg-3: #fff8fb;
+
+  --card-bg: rgba(255, 255, 255, 0.78);
+  --card-bg-strong: rgba(255, 255, 255, 0.9);
+  --card-border: rgba(210, 216, 232, 0.8);
+  --soft-border: rgba(220, 225, 238, 0.9);
+
+  --text-main: #1f2430;
+  --text-sub: #5f6778;
+  --text-muted: #7b8395;
+
+  --accent-1: #7c86ff;
+  --accent-2: #63a9ff;
+  --accent-soft: #eff3ff;
+
+  --sub-btn-bg: rgba(238, 241, 251, 0.92);
+  --sub-btn-text: #4e5668;
+
+  --danger-bg: rgba(255, 232, 238, 0.96);
+  --danger-text: #af4364;
+
+  --success-bg: rgba(232, 247, 238, 0.96);
+  --success-text: #2f7b56;
+
+  --gold-bg: linear-gradient(135deg, #ffe7a8, #ffc778);
+  --gold-text: #7a4e00;
+
+  --shadow-main: 0 18px 48px rgba(92, 103, 138, 0.12);
+  --shadow-soft: 0 8px 22px rgba(92, 103, 138, 0.08);
+  --shadow-btn: 0 10px 24px rgba(111, 120, 214, 0.22);
+
+  --blur: blur(18px);
+
+  --radius-xl: 28px;
+  --radius-lg: 22px;
+  --radius-md: 18px;
+  --radius-sm: 15px;
+  --radius-pill: 999px;
+
+  --transition-fast: 160ms ease;
+  --transition-mid: 240ms ease;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "SF Pro Display", "SF Pro Text", "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.68), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.42), transparent 24%),
+    linear-gradient(135deg, var(--bg-1), var(--bg-2), var(--bg-3));
+  color: var(--text-main);
+  min-height: 100vh;
+  line-height: 1.62;
+  letter-spacing: -0.012em;
+  overflow-x: hidden;
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::before {
+  background-image:
+    radial-gradient(circle, rgba(255, 255, 255, 0.72) 0 1px, transparent 1.5px),
+    radial-gradient(circle, rgba(216, 224, 255, 0.4) 0 1px, transparent 1.5px);
+  background-size: 180px 180px, 240px 240px;
+  background-position: 0 0, 70px 90px;
+  opacity: 0.28;
+  animation: sparkleDrift 42s linear infinite;
+}
+
+body::after {
+  background:
+    radial-gradient(circle at 18% 30%, rgba(255, 255, 255, 0.18) 0%, transparent 12%),
+    radial-gradient(circle at 80% 16%, rgba(255, 255, 255, 0.14) 0%, transparent 12%);
+  opacity: 0.7;
+  animation: glowPulse 9s ease-in-out infinite alternate;
+}
+
+input,
+textarea,
+select,
+button {
+  font: inherit;
+}

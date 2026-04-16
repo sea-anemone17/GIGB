@@ -19,23 +19,23 @@
         <h2>📚 학습 설정</h2>
 
         <div class="field">
-         <label for="subjectSelect">과목</label>
-         <div class="inline-row">
-          <select id="subjectSelect"></select>
-          <button id="deleteSubjectBtn" class="secondary" type="button">
-           과목 삭제
-          </button>
+          <label for="subjectSelect">과목</label>
+          <div class="inline-row">
+            <select id="subjectSelect"></select>
+            <button id="deleteSubjectBtn" class="secondary" type="button">
+              과목 삭제
+            </button>
+          </div>
         </div>
-      </div>
 
         <div class="field">
-         <label for="unitSelect">소단원</label>
-         <div class="inline-row">
-          <select id="unitSelect"></select>
-          <button id="deleteUnitBtn" class="secondary" type="button">
-           소단원 삭제
-          </button>
-         </div>
+          <label for="unitSelect">소단원</label>
+          <div class="inline-row">
+            <select id="unitSelect"></select>
+            <button id="deleteUnitBtn" class="secondary" type="button">
+              소단원 삭제
+            </button>
+          </div>
         </div>
 
         <div class="field">
@@ -73,70 +73,73 @@
           <p><strong>현재 소단원:</strong> <span id="currentUnit">-</span></p>
           <p><strong>성공률:</strong> <span id="successRate">35</span>%</p>
           <p><strong>푼 문제 수:</strong> <span id="solvedCount">0</span></p>
-          <p><strong>판정까지 남은 카운트:</strong> <span id="remainingForRoll">3</span></p>
-          <p><strong>보유 판정권:</strong> <span id="rollTickets">0</span></p>
+          <p><strong>남은 카운트:</strong> <span id="remainingForRoll">3</span></p>
+          <p><strong>판정권:</strong> <span id="rollTickets">0</span></p>
         </div>
 
         <div class="button-row">
-         <button id="solveProblemBtn" type="button">문제 풀기 (+1%)</button>
-         <button id="timerSuccessBtn" class="secondary" type="button">
-          타이머 성공 (+1%)
-         </button>
+          <button id="solveProblemBtn" type="button">문제 풀기 (+1%)</button>
+          <button id="timerSuccessBtn" class="secondary" type="button">
+            타이머 성공 (+1%)
+          </button>
         </div>
       </section>
 
       <!-- 판정 -->
       <section class="card">
-       <h2>🎯 판정</h2>
+        <h2>🎯 판정</h2>
 
-       <div class="roll-panel">
-        <div class="roll-number-box">
-        <span class="roll-label">최근 주사위</span>
-        <span id="lastRoll" class="roll-number">-</span>
-       </div>
+        <div class="roll-panel">
+          <div class="roll-number-box">
+            <span class="roll-label">최근 주사위</span>
+            <span id="lastRoll" class="roll-number">-</span>
+          </div>
 
-       <p id="resultPraise" class="result-praise"></p>
+          <div class="roll-result-box" id="rollResultBox">
+            <span class="roll-label">판정 결과</span>
+            <span id="rollResult" class="roll-result-text">-</span>
+          </div>
+        </div>
 
-       <div class="roll-result-box" id="rollResultBox">
-        <span class="roll-label">판정 결과</span>
-        <span id="rollResult" class="roll-result-text">-</span>
-       </div>
-      </div>
+        <p id="resultPraise" class="result-praise"></p>
 
-      <div class="button-row">
-       <button id="rollBtn" class="accent" type="button">1d100 판정</button>
-       <button id="resetProgressBtn" class="secondary" type="button">
-        현재 소단원 진행도 초기화
-       </button>
-      </div>
+        <div class="button-row">
+          <button id="rollBtn" class="accent" type="button">1d100 판정</button>
+          <button id="resetProgressBtn" class="secondary" type="button">
+            현재 소단원 진행도 초기화
+          </button>
+        </div>
 
-      <p class="hint">문제 3개를 풀면 판정 1회가 가능합니다.</p>
-     </section>
+        <p class="hint">
+          카운트가 3이 되면 자동으로 <strong>판정권 1개</strong>로 바뀝니다.
+        </p>
+      </section>
 
+      <!-- 타이머 -->
       <section class="card">
-       <h2>⏱️ 타이머</h2>
+        <h2>⏱️ 타이머</h2>
 
-       <div id="timerPraise" class="praise-burst"></div>
+        <div id="timerPraise" class="praise-burst"></div>
 
-       <div class="field">
-        <label for="timerMinutesInput">집중 시간 (분)</label>
-        <input id="timerMinutesInput" type="number" min="1" max="180" value="15" />
-       </div>
+        <div class="field">
+          <label for="timerMinutesInput">집중 시간 (분)</label>
+          <input id="timerMinutesInput" type="number" min="1" max="180" value="15" />
+        </div>
 
-       <div class="status-box">
-        <p><strong>남은 시간:</strong> <span id="timerDisplay">15:00</span></p>
-        <p><strong>상태:</strong> <span id="timerStatus">대기 중</span></p>
-       </div>
+        <div class="status-box">
+          <p><strong>남은 시간:</strong> <span id="timerDisplay">15:00</span></p>
+          <p><strong>상태:</strong> <span id="timerStatus">대기 중</span></p>
+        </div>
 
-       <div class="button-row">
-        <button id="startTimerBtn" class="accent" type="button">시작</button>
-        <button id="pauseTimerBtn" class="secondary" type="button">일시정지</button>
-        <button id="resetTimerBtn" class="secondary" type="button">리셋</button>
-       </div>
+        <div class="button-row">
+          <button id="startTimerBtn" class="accent" type="button">시작</button>
+          <button id="pauseTimerBtn" class="secondary" type="button">일시정지</button>
+          <button id="resetTimerBtn" class="secondary" type="button">리셋</button>
+        </div>
 
-       <p class="hint">
-        타이머가 끝나면 자동으로 <strong>타이머 성공 (+1%)</strong>이 반영됩니다.
-       </p>
+        <p class="hint">
+          타이머가 끝나면 자동으로 <strong>타이머 성공 (+1%)</strong>이 반영됩니다.
+        </p>
       </section>
 
       <!-- 토큰 -->
@@ -148,15 +151,17 @@
             <span class="token-label">일반 토큰</span>
             <span id="normalToken">0</span>
           </div>
+
           <div class="token special-token">
             <span class="token-label">스페셜 토큰</span>
             <span id="specialToken">0</span>
           </div>
+
           <div class="token fragment-token">
             <span class="token-label">토큰 조각</span>
             <span id="tokenFragments">0</span>
           </div>
-         </div>
+        </div>
       </section>
 
       <!-- 가챠 -->
@@ -187,16 +192,15 @@
 
       <!-- 로그 -->
       <section class="card full-width">
-       <h2>📝 시스템 로그</h2>
+        <h2>📝 시스템 로그</h2>
 
-       <!-- 여기 추가 -->
-       <div class="button-row">
-        <button id="clearLogBtn" class="secondary">로그 초기화</button>
-       </div>
+        <div class="button-row">
+          <button id="clearLogBtn" class="secondary" type="button">로그 초기화</button>
+        </div>
 
-       <ul id="logList" class="log-list">
-        <li class="empty-log">아직 로그가 없습니다.</li>
-       </ul>
+        <ul id="logList" class="log-list">
+          <li class="empty-log">아직 로그가 없습니다.</li>
+        </ul>
       </section>
 
       <!-- 보관함 -->
@@ -209,6 +213,10 @@
     </main>
   </div>
 
+  <script src="promptData.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
   <script src="promptData.js"></script>
   <script src="app.js"></script>
 </body>

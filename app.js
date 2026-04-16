@@ -18,17 +18,18 @@ function createDefaultState() {
     unit: "",
     normalToken: 0,
     specialToken: 0,
+    rollTickets: 0,
     logs: [],
     gachaText: "아직 가챠 결과가 없습니다.",
     gachaClass: "",
     currentGachaResult: null,
     savedPrompts: [],
     timer: {
-     durationSeconds: 15 * 60,
-     remainingSeconds: 15 * 60,
-     isRunning: false,
-     isPaused: false,
-     lastUpdatedAt: null
+      durationSeconds: 15 * 60,
+      remainingSeconds: 15 * 60,
+      isRunning: false,
+      isPaused: false,
+      lastUpdatedAt: null
     },
     unitProgress: {}
   };
@@ -289,8 +290,7 @@ function getRemainingForRoll() {
 }
 
 function canRoll() {
-  const progress = getCurrentProgress();
-  return Boolean(progress && progress.attemptsSinceRoll >= 3);
+  return state.rollTickets >= 1;
 }
 
 function canDraw() {
@@ -320,6 +320,7 @@ function loadState() {
     state.unit = parsed.unit || "";
     state.normalToken = parsed.normalToken || 0;
     state.specialToken = parsed.specialToken || 0;
+    state.rollTickets = parsed.rollTickets || 0;
     state.logs = Array.isArray(parsed.logs) ? parsed.logs : [];
     state.gachaText = parsed.gachaText || "아직 가챠 결과가 없습니다.";
     state.gachaClass = parsed.gachaClass || "";
@@ -684,6 +685,7 @@ function deleteSubject() {
 // -----------------------------
 // 9. 학습 로직
 // -----------------------------
+
 function recordProblemSolved() {
   if (!hasCurrentUnit()) {
     addLog("⚠️ 먼저 과목과 소단원을 준비해 주세요.");
@@ -699,7 +701,14 @@ function recordProblemSolved() {
   progress.attemptsSinceRoll += 1;
   progress.successRate = clamp(progress.successRate + 1, 0, 95);
 
-  addLog(`📘 ${state.subject} - ${state.unit}: 문제 풀이 완료 → 성공률 +1`);
+  if (progress.attemptsSinceRoll >= 3) {
+    progress.attemptsSinceRoll = 0;
+    state.rollTickets += 1;
+    addLog(`📘 ${state.subject} - ${state.unit}: 문제 풀이 완료 → 성공률 +1 / 🎯 판정권 +1`);
+  } else {
+    addLog(`📘 ${state.subject} - ${state.unit}: 문제 풀이 완료 → 성공률 +1`);
+  }
+
   renderAll();
   saveState();
 }
@@ -718,7 +727,14 @@ function recordTimerSuccess() {
   progress.attemptsSinceRoll += 1;
   progress.successRate = clamp(progress.successRate + 1, 0, 95);
 
-  addLog(`⏱️ ${state.subject} - ${state.unit}: 타이머 성공 → 성공률 +1`);
+  if (progress.attemptsSinceRoll >= 3) {
+    progress.attemptsSinceRoll = 0;
+    state.rollTickets += 1;
+    addLog(`⏱️ ${state.subject} - ${state.unit}: 타이머 성공 → 성공률 +1 / 🎯 판정권 +1`);
+  } else {
+    addLog(`⏱️ ${state.subject} - ${state.unit}: 타이머 성공 → 성공률 +1`);
+  }
+
   renderAll();
   saveState();
 }
@@ -733,6 +749,7 @@ function resetCurrentProgress() {
 
   const key = getUnitKey(state.subject, state.unit);
   state.unitProgress[key] = createDefaultProgress();
+  state.rollTickets = 0;
 
   addLog(`🔄 ${state.subject} - ${state.unit} 진행도를 초기화했습니다.`);
   renderAll();
@@ -742,13 +759,23 @@ function resetCurrentProgress() {
 // -----------------------------
 // 10. 판정 로직
 // -----------------------------
+
 function roll1d100() {
   if (!canRoll()) {
-    addLog("⚠️ 아직 판정할 수 없습니다. 문제를 더 풀어 주세요.");
+    addLog("⚠️ 아직 판정할 수 없습니다. 카운트를 더 쌓아 주세요.");
     renderAll();
     saveState();
     return;
   }
+
+  if (state.rollTickets < 1) {
+    addLog("⚠️ 판정권이 없습니다.");
+    renderAll();
+    saveState();
+    return;
+  }
+
+  state.rollTickets -= 1;
 
   const progress = getCurrentProgress();
   if (!progress) return;
@@ -776,7 +803,6 @@ function roll1d100() {
   progress.lastRollResult = result;
   state.normalToken += normalReward;
   state.specialToken += specialReward;
-  progress.attemptsSinceRoll = 0;
 
   if (result === "대성공") {
     addLog(`🎉 ${state.subject} - ${state.unit}: 1d100=${roll} → 대성공! 일반 토큰 +1, 스페셜 토큰 +1`);

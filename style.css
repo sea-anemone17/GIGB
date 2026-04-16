@@ -48,9 +48,6 @@
   --transition-mid: 240ms ease;
 }
 
-/* ------------------------------ */
-/* 기본 */
-/* ------------------------------ */
 html,
 body {
   margin: 0;
@@ -77,7 +74,6 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* 배경 반짝이: 아주 약하게 */
 body::before,
 body::after {
   content: "";
@@ -113,9 +109,6 @@ body::after {
   animation: fadeInUp 0.55s ease;
 }
 
-/* ------------------------------ */
-/* 헤더 */
-/* ------------------------------ */
 .header {
   margin-bottom: 20px;
   text-align: center;
@@ -137,9 +130,6 @@ body::after {
   line-height: 1.72;
 }
 
-/* ------------------------------ */
-/* 레이아웃 */
-/* ------------------------------ */
 .grid {
   display: grid;
   gap: 20px;
@@ -150,9 +140,6 @@ body::after {
   grid-column: 1 / -1;
 }
 
-/* ------------------------------ */
-/* 카드 */
-/* ------------------------------ */
 .card {
   position: relative;
   background: var(--card-bg);
@@ -201,9 +188,6 @@ body::after {
   color: var(--text-main);
 }
 
-/* ------------------------------ */
-/* 폼 */
-/* ------------------------------ */
 .field {
   display: flex;
   flex-direction: column;
@@ -288,9 +272,6 @@ select {
   flex: 1;
 }
 
-/* ------------------------------ */
-/* 버튼 */
-/* ------------------------------ */
 .button-row {
   display: flex;
   flex-wrap: wrap;
@@ -344,7 +325,6 @@ button.accent {
   color: white;
 }
 
-/* 버튼 역할 분리 */
 #solveProblemBtn,
 #startTimerBtn,
 #drawBtn,
@@ -375,7 +355,6 @@ button.accent {
   box-shadow: var(--shadow-soft);
 }
 
-/* 판정 가능 강조 */
 #rollBtn.ready {
   animation: readyPulse 1.8s ease-in-out infinite;
   box-shadow:
@@ -383,9 +362,6 @@ button.accent {
     0 12px 28px rgba(118, 103, 203, 0.24);
 }
 
-/* ------------------------------ */
-/* 체크박스 */
-/* ------------------------------ */
 .checkbox-row {
   display: flex;
   align-items: center;
@@ -400,9 +376,6 @@ button.accent {
   transform: scale(1.04);
 }
 
-/* ------------------------------ */
-/* 상태 박스 */
-/* ------------------------------ */
 .status-box,
 .roll-number-box,
 .roll-result-box,
@@ -462,9 +435,6 @@ button.accent {
   line-height: 1.66;
 }
 
-/* ------------------------------ */
-/* 판정 */
-/* ------------------------------ */
 .roll-panel {
   display: grid;
   gap: 16px;
@@ -553,9 +523,6 @@ button.accent {
   animation: fadeIn 0.25s ease;
 }
 
-/* ------------------------------ */
-/* 타이머 */
-/* ------------------------------ */
 #timerDisplay {
   font-size: clamp(2.15rem, 5vw, 2.9rem);
   font-weight: 850;
@@ -590,9 +557,6 @@ button.accent {
   animation: praiseBurst 1s ease forwards;
 }
 
-/* ------------------------------ */
-/* 토큰 */
-/* ------------------------------ */
 .token-box {
   display: grid;
   gap: 16px;
@@ -646,9 +610,6 @@ button.accent {
   border-color: rgba(205, 194, 238, 0.92);
 }
 
-/* ------------------------------ */
-/* 가챠 결과 */
-/* ------------------------------ */
 .gacha-result {
   border-radius: var(--radius-lg);
   padding: 18px;
@@ -679,9 +640,6 @@ button.accent {
   animation: ssrGlow 2s ease-in-out infinite alternate;
 }
 
-/* ------------------------------ */
-/* 로그 / 보관함 */
-/* ------------------------------ */
 .log-list {
   list-style: none;
   margin: 0;
@@ -751,9 +709,6 @@ button.accent {
   color: var(--text-muted);
 }
 
-/* ------------------------------ */
-/* 애니메이션 */
-/* ------------------------------ */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -883,9 +838,6 @@ button.accent {
   }
 }
 
-/* ------------------------------ */
-/* 반응형 */
-/* ------------------------------ */
 @media (max-width: 980px) {
   .grid {
     grid-template-columns: 1fr;
@@ -938,6 +890,9 @@ button.accent {
   }
 
   .status-box p {
+    font-size: 0.95rem;
+  }
+}  .status-box p {
     font-size: 0.95rem;
   }
 }

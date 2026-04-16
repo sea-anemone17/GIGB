@@ -1,0 +1,261 @@
+#rollTickets,
+#tokenFragments {
+  display: inline-block;
+  min-width: 1.5em;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(135deg, #f3efff, #edf3ff);
+  color: #575f85;
+  font-weight: 800;
+  text-align: center;
+  box-shadow: inset 0 0 0 1px rgba(124, 134, 255, 0.08);
+}
+
+.roll-panel {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 14px;
+}
+
+.roll-number-box,
+.roll-result-box {
+  border-radius: var(--radius-md);
+  padding: 18px;
+  min-height: 122px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.roll-label {
+  font-size: 0.91rem;
+  font-weight: 700;
+  color: var(--text-sub);
+  margin-bottom: 8px;
+}
+
+.roll-number {
+  font-size: 2.2rem;
+  font-weight: 820;
+  letter-spacing: -0.05em;
+  color: #3f465c;
+}
+
+.roll-result-text {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-width: 96px;
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  font-weight: 800;
+  font-size: 0.98rem;
+  background: #eef1fb;
+  color: #5c6479;
+}
+
+.roll-result-box.result-success .roll-result-text {
+  background: rgba(233, 247, 239, 0.96);
+  color: #2f7b56;
+}
+
+.roll-result-box.result-hard-success .roll-result-text {
+  background: linear-gradient(135deg, #edf3ff, #e9efff);
+  color: #3f63b4;
+  box-shadow: 0 0 0 1px rgba(103, 168, 255, 0.08) inset;
+}
+
+.roll-result-box.result-fail .roll-result-text {
+  background: #f2f4fb;
+  color: #72798d;
+}
+
+.roll-result-box.result-critical-success .roll-result-text {
+  background: var(--gold-bg);
+  color: var(--gold-text);
+  box-shadow: 0 0 14px rgba(255, 183, 71, 0.18);
+}
+
+.roll-result-box.result-critical-fail .roll-result-text {
+  background: var(--danger-bg);
+  color: var(--danger-text);
+}
+
+.result-praise {
+  min-height: 1.9em;
+  margin: 10px 0 4px;
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 750;
+  line-height: 1.65;
+  color: #66608b;
+  animation: fadeIn 0.25s ease;
+}
+
+#timerDisplay {
+  font-size: clamp(2.15rem, 5vw, 2.9rem);
+  font-weight: 850;
+  letter-spacing: -0.055em;
+  color: #313750;
+}
+
+#timerStatus {
+  color: var(--text-sub);
+  font-weight: 700;
+}
+
+.timer-finished {
+  animation: timerGlow 0.9s ease;
+}
+
+#timerPraise {
+  min-height: 1.6em;
+  margin-top: 10px;
+  text-align: center;
+  font-weight: 800;
+  color: #5f5a87;
+  pointer-events: none;
+}
+
+.praise-burst {
+  opacity: 0;
+  transform: translateY(6px) scale(0.97);
+}
+
+.praise-burst.show {
+  animation: praiseBurst 1s ease forwards;
+}
+
+.token-box {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.token {
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  min-height: 136px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.token:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(92, 103, 138, 0.1);
+}
+
+.token-label {
+  color: var(--text-sub);
+  font-size: 0.96rem;
+  font-weight: 750;
+  margin-bottom: 10px;
+}
+
+.normal-token span:last-child,
+.special-token span:last-child,
+.fragment-token span:last-child {
+  font-size: 2.15rem;
+  font-weight: 850;
+  letter-spacing: -0.04em;
+}
+
+.normal-token {
+  background: linear-gradient(180deg, #f7f9ff, #f2f0ff);
+}
+
+.special-token {
+  background: linear-gradient(180deg, #fff7fb, #f9f1ff);
+}
+
+.fragment-token {
+  background: linear-gradient(180deg, #f6f2ff, #efe8ff);
+  border-color: rgba(205, 194, 238, 0.92);
+}
+
+.gacha-result {
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  min-height: 154px;
+  line-height: 1.75;
+  white-space: pre-line;
+  animation: fadeIn 0.35s ease;
+  font-size: 0.97rem;
+}
+
+.gacha-result.r {
+  background: linear-gradient(180deg, #fcfcff, #f6f6ff);
+}
+
+.gacha-result.sr {
+  background: linear-gradient(180deg, #f8fbff, #f6f2ff);
+  box-shadow:
+    0 0 0 1px rgba(103, 168, 255, 0.07) inset,
+    0 10px 22px rgba(103, 168, 255, 0.07);
+}
+
+.gacha-result.ssr {
+  background: linear-gradient(180deg, #fffaf0, #fff4dd);
+  border-color: rgba(255, 201, 127, 0.52);
+  box-shadow:
+    0 0 0 1px rgba(255, 201, 127, 0.14) inset,
+    0 0 22px rgba(255, 183, 71, 0.16);
+  animation: ssrGlow 2s ease-in-out infinite alternate;
+}
+
+.saved-item-actions {
+  margin-top: 8px;
+}
+
+.saved-item-actions button {
+  padding: 8px 10px;
+  font-size: 0.88rem;
+}
+
+.saved-r {
+  background: linear-gradient(180deg, #fcfcff, #f7f7ff);
+}
+
+.saved-sr {
+  background: linear-gradient(180deg, #f8fbff, #f5f2ff);
+  box-shadow: 0 10px 18px rgba(103, 168, 255, 0.07);
+}
+
+.saved-ssr {
+  background: linear-gradient(180deg, #fffaf0, #fff5e1);
+  border: 1px solid rgba(255, 201, 127, 0.44);
+  box-shadow: 0 12px 22px rgba(255, 183, 71, 0.1);
+}
+
+.saved-rarity-badge {
+  display: inline-block;
+  margin-bottom: 6px;
+  padding: 4px 9px;
+  border-radius: var(--radius-pill);
+  font-size: 0.82rem;
+  font-weight: 850;
+  background: #eef1fb;
+}
+
+.saved-r .saved-rarity-badge {
+  color: #697088;
+}
+
+.saved-sr .saved-rarity-badge {
+  color: #4b73ad;
+  background: #eaf2ff;
+}
+
+.saved-ssr .saved-rarity-badge {
+  color: #875a00;
+  background: linear-gradient(135deg, #ffe5a0, #ffd18d);
+  box-shadow: 0 0 8px rgba(255, 183, 71, 0.12);
+}

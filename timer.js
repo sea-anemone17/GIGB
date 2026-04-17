@@ -78,7 +78,10 @@ function startTimer() {
 function pauseTimer() {
   if (!state.timer.isRunning || state.timer.isPaused) return;
 
+  reconcileTimerWithElapsedTime();
   state.timer.isPaused = true;
+  state.timer.lastUpdatedAt = null;
+
   stopTimerInterval();
   addLog("⏸️ 타이머 일시정지");
   saveState();
@@ -123,13 +126,31 @@ function runTimerLoop() {
   timerInterval = setInterval(() => {
     if (!state.timer.isRunning || state.timer.isPaused) return;
 
-    state.timer.remainingSeconds -= 1;
+    reconcileTimerWithElapsedTime();
 
-    if (state.timer.remainingSeconds <= 0) {
-      finishTimer();
-      return;
-    }
+    if (!state.timer.isRunning) return; // finishTimer()로 끝났을 수 있음
 
     syncTimerDisplay();
   }, 1000);
+}
+
+function reconcileTimerWithElapsedTime() {
+  if (!state.timer) return;
+  if (!state.timer.isRunning || state.timer.isPaused) return;
+  if (!state.timer.lastUpdatedAt) return;
+
+  const now = Date.now();
+  const elapsedSeconds = Math.floor((now - state.timer.lastUpdatedAt) / 1000);
+
+  if (elapsedSeconds <= 0) return;
+
+  state.timer.remainingSeconds -= elapsedSeconds;
+  state.timer.lastUpdatedAt = now;
+
+  if (state.timer.remainingSeconds <= 0) {
+    finishTimer();
+    return;
+  }
+
+  saveState();
 }

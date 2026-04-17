@@ -18,6 +18,7 @@ function initApp() {
   }
 
   if (state.timer && state.timer.isRunning && !state.timer.isPaused) {
+    reconcileTimerWithElapsedTime();
     runTimerLoop();
   }
 

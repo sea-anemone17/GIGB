@@ -46,6 +46,20 @@ const startTimerBtn = document.getElementById("startTimerBtn");
 const pauseTimerBtn = document.getElementById("pauseTimerBtn");
 const resetTimerBtn = document.getElementById("resetTimerBtn");
 
+function canRollNow() {
+  if (!canRoll()) return false;
+  if (!state.subject || !state.unit) return false;
+
+  const progress = getCurrentProgress();
+  if (!progress) return false;
+
+  const successRate = Number(progress.successRate);
+  if (!Number.isFinite(successRate)) return false;
+  if (successRate < 1 || successRate > 95) return false;
+
+  return true;
+}
+
 function setText(el, value) {
   if (el) el.textContent = value;
 }
@@ -116,7 +130,7 @@ function renderStatus() {
   setText(currentUnit, state.unit || "-");
   setText(successRateEl, progress ? progress.successRate : 35);
   setText(solvedCountEl, progress ? progress.solvedCount : 0);
-  setText(remainingForRollEl, getRemainingForRoll());
+  setText(remainingForRollEl, getCurrentProgress() ? getRemainingForRoll() : "-");
   setText(rollTicketsEl, state.rollTickets);
   setText(tokenFragmentsEl, state.tokenFragments);
 
@@ -150,8 +164,10 @@ function renderStatus() {
   if (resetProgressBtn) resetProgressBtn.disabled = !validUnit;
 
   if (rollBtn) {
-    rollBtn.disabled = !canRoll();
-    if (canRoll()) {
+    const rollReady = canRollNow();
+    rollBtn.disabled = !rollReady;
+
+    if (rollReady) {
       rollBtn.classList.add("ready");
     } else {
       rollBtn.classList.remove("ready");

@@ -65,7 +65,7 @@ function drawGacha() {
       `상황: ${setting}\n` +
       `감정: ${emotion}\n` +
       `트위스트: ${twist}\n` +
-      `특별 키워드: ${ssrKeyword || "-"}`;
+      `특별 칭호: ${ssrKeyword || "-"}`;
     resultClass = "ssr";
 
     resultData.setting = setting;
@@ -82,7 +82,7 @@ function drawGacha() {
     addLog(`🎰 스페셜 토큰 사용 가챠 결과: ${rarity}`);
     if (useSpecialTokenCheckbox) useSpecialTokenCheckbox.checked = false;
   } else {
-    addLog(`🎰 연성소재 가챠 결과: ${rarity}`);
+    addLog(`🎰 일반 토큰 사용 가챠 결과: ${rarity}`);
   }
 
   renderAll();
@@ -103,14 +103,14 @@ function saveCurrentPrompt() {
     state.savedPrompts = state.savedPrompts.slice(0, 50);
   }
 
-  addLog(`💾 ${state.currentGachaResult.rarity} 소재를 보관함에 저장했습니다.`);
+  addLog(`💾 ${state.currentGachaResult.rarity} 칭호를 보관함에 저장했습니다.`);
   renderAll();
   saveState();
 }
 
 function deleteSavedPrompt(index) {
   state.savedPrompts.splice(index, 1);
-  addLog("🗑️ 보관함에서 소재를 삭제했습니다.");
+  addLog("🗑️ 보관함에서 칭호를 삭제했습니다.");
   renderAll();
   saveState();
 }
